@@ -393,7 +393,7 @@ def create_schedule_with_vars(outs:List[LazyBuffer], seen:Optional[Set[LazyBuffe
   def push(lsi:LBScheduleItem):
     priority = 0
     if lsi.ast.op is UOps.EXT and lsi.ast.arg[0] is MetaOps.COPY:
-      print(lsi.outputs[0].device, lsi.inputs[0])
+      print(f"{lsi.inputs[0].device:5} -> {lsi.outputs[0].device}{' ':6}", lsi.outputs[0].device, lsi.inputs[0])
     heapq.heappush(queue, (priority, next(counter), lsi))
   for lsi,d in in_degree.items():
     if d == 0: push(lsi)
