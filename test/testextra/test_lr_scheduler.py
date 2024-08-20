@@ -1,4 +1,5 @@
 import numpy as np
+from test.helpers import TrackedTestCase
 import torch
 import unittest
 from tinygrad.tensor import Tensor
@@ -52,7 +53,7 @@ def get_lrs(optim, sched, epochs, steps=1, accs=None):
     lrs.append(lr)
   return lrs
 
-class TestLrScheduler(unittest.TestCase):
+class TestLrScheduler(TrackedTestCase):
   def setUp(self):
     self.old_training = Tensor.training
     Tensor.training = True

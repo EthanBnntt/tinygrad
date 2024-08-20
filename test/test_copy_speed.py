@@ -1,11 +1,12 @@
 import unittest
+from test.helpers import TrackedTestCase
 from tinygrad import Tensor
 from tinygrad import Device
 from tinygrad.helpers import Timing, CI, OSX
 import multiprocessing.shared_memory as shared_memory
 
 N = 4096 if CI else 16384
-class TestCopySpeed(unittest.TestCase):
+class TestCopySpeed(TrackedTestCase):
   @classmethod
   def setUpClass(cls): Device[Device.DEFAULT].synchronize()
 

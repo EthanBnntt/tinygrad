@@ -1,4 +1,5 @@
 from tinygrad import Tensor
+from test.helpers import TrackedTestCase
 from test.external.mlperf_unet3d.dice import DiceCELoss
 from examples.mlperf.losses import dice_ce_loss
 
@@ -6,7 +7,7 @@ import numpy as np
 import torch
 import unittest
 
-class ExternalTestLosses(unittest.TestCase):
+class ExternalTestLosses(TrackedTestCase):
   def _test_losses(self, tinygrad_metrics, orig_metrics, pred, label):
     tinygrad_metrics_res = tinygrad_metrics(Tensor(pred), Tensor(label)).numpy()
     orig_metrics_res = orig_metrics(torch.from_numpy(pred), torch.from_numpy(label)).numpy()

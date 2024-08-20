@@ -1,4 +1,5 @@
 # NOTE: this only tests the speed of the LLaMA codegen, it doesn't actually run the net
+from test.helpers import TrackedTestCase
 import unittest, time
 from examples.llama import Transformer, MODEL_PARAMS
 from tinygrad.tensor import Tensor
@@ -16,7 +17,7 @@ class FakeAllocator(Allocator):
   def _alloc(self, sz, options): return None
   def copyin(self, dest, src:memoryview): pass
 
-class TestLLaMASpeed(unittest.TestCase):
+class TestLLaMASpeed(TrackedTestCase):
   def test_llama_compile(self):
     backup_program = Device[Device.DEFAULT].runtime
     backup_allocator = Device[Device.DEFAULT].allocator

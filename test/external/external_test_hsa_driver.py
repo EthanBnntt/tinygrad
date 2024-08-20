@@ -1,4 +1,5 @@
 import ctypes, unittest
+from test.helpers import TrackedTestCase
 from tinygrad.helpers import init_c_struct_t
 from tinygrad.device import Device, Buffer, BufferXfer
 from tinygrad.dtype import dtypes
@@ -27,7 +28,7 @@ def get_hsa_buffer_and_kernargs(dev):
   return test_buf, kernargs
 
 @unittest.skipUnless(Device.DEFAULT == "HSA", "only run on HSA")
-class TestHSADriver(unittest.TestCase):
+class TestHSADriver(TrackedTestCase):
   def test_hsa_simple_enqueue(self):
     dev = Device[Device.DEFAULT]
     queue = AQLQueue(dev, sz=256)

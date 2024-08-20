@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from test.helpers import TrackedTestCase
 import unittest
 from tinygrad.ops import UOps
 from tinygrad.tensor import Tensor
@@ -8,7 +9,7 @@ from tinygrad.shape.shapetracker import ShapeTracker, View
 from tinygrad.helpers import prod
 from test.unit.test_shapetracker import shapetracker_getitem
 
-class TestConvShapetracker(unittest.TestCase):
+class TestConvShapetracker(TrackedTestCase):
   def test_conv_3x3_one_view(self):
     conv = Conv2d(16, 32, (3, 3))
     seen = set()

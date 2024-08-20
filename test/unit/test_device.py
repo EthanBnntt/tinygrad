@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from test.helpers import TrackedTestCase
 import unittest
 from unittest.mock import patch
 import os
@@ -6,7 +7,7 @@ from tinygrad import Tensor
 from tinygrad.device import Device, Compiler
 from tinygrad.helpers import diskcache_get, diskcache_put, getenv
 
-class TestDevice(unittest.TestCase):
+class TestDevice(TrackedTestCase):
   def test_canonicalize(self):
     assert Device.canonicalize(None) == Device.DEFAULT
     assert Device.canonicalize("CPU") == "CPU"
@@ -23,7 +24,7 @@ class MockCompiler(Compiler):
   def __init__(self, key): super().__init__(key)
   def compile(self, src) -> bytes: return src.encode()
 
-class TestCompiler(unittest.TestCase):
+class TestCompiler(TrackedTestCase):
   def test_compile_cached(self):
     diskcache_put("key", "123", None) # clear cache
     getenv.cache_clear()

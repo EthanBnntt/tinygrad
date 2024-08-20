@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from test.helpers import TrackedTestCase
 import unittest, functools
 import numpy as np
 
@@ -19,7 +20,7 @@ def _simple_test(add, extract=lambda x: x, N=10):
     np.testing.assert_allclose(extract(c).numpy(), a.numpy()+b.numpy(), atol=1e-4, rtol=1e-5)
   assert_jit_cache_len(add, 1)
 
-class TestJit(unittest.TestCase):
+class TestJit(TrackedTestCase):
 
   @settings(deadline=2e4)
   @unittest.skipUnless(Device.DEFAULT in ["LLVM", "CLANG"], f"no support on {Device.DEFAULT}")
@@ -413,7 +414,7 @@ class TestJit(unittest.TestCase):
       np.testing.assert_allclose((a.numpy().sum(axis=(1,)) + 5).view(np.int32), xc.numpy(), atol=1e-4, rtol=1e-5)
 
 @unittest.skip("Pending multioutput implementation #3607")
-class TestMultioutputJit(unittest.TestCase):
+class TestMultioutputJit(TrackedTestCase):
   def _test(self, f):
     for _ in range(5):
       a, b = Tensor.randn(10, 10), Tensor.randn(10, 10)
@@ -440,7 +441,7 @@ class TestMultioutputJit(unittest.TestCase):
     self._test(fxn)
     assert_jit_cache_len(fxn, 2)
 
-class TestJitInsideJit(unittest.TestCase):
+class TestJitInsideJit(TrackedTestCase):
   def test_jit_jit_error(self):
     @TinyJit
     def f(t): return t + 1

@@ -1,4 +1,5 @@
 from typing import List, Tuple, Union, cast
+from test.helpers import TrackedTestCase
 import numpy as np
 import unittest
 from dataclasses import replace
@@ -62,7 +63,7 @@ def helper_tc_ensure_uops_and_opts_count(n: int, m:int, k:int, dtype_in:DType, d
     assert wmmas == 0, "tensor core is incorrectly triggered"
     assert tcs == 0, "tensor core opt is incorrectly included"
 
-class TestLinearizer(unittest.TestCase):
+class TestLinearizer(TrackedTestCase):
   def test_arg_dedup(self):
     a, b = Tensor.randn(4), Tensor.randn(4)
     np_a, np_b = a.numpy(), b.numpy()
@@ -1255,7 +1256,7 @@ class TestLinearizer(unittest.TestCase):
     assert out.src[-1].op is UOps.VECTORIZE and out.src[-1].dtype.count != 1
 
 @unittest.skipUnless(Device[Device.DEFAULT].renderer.supports_float4, "need backends that support float4")
-class TestFloat4(unittest.TestCase):
+class TestFloat4(TrackedTestCase):
   @staticmethod
   def count_float4(k):
     return (len([uop for uop in k.uops if uop.op is UOps.LOAD and uop.dtype == dtypes.float.vec(4)]),
@@ -1444,7 +1445,7 @@ class TestFloat4(unittest.TestCase):
       count = len([uop for uop in k.uops if uop.op is UOps.DEFINE_ACC and uop.dtype == dtypes.float.vec(2)])
       assert count == expected, f"{count=}, {expected=}"
 
-class TestHandCodedOpts(unittest.TestCase):
+class TestHandCodedOpts(TrackedTestCase):
   def test_masked_upcast(self):
     layer_1 = Tensor.cat(*[Tensor.rand(5) for _ in range(4)])
     layer_2 = Tensor.cat(layer_1.unsqueeze(0), Tensor.rand(6, 20))
@@ -1580,7 +1581,7 @@ def _helper_linearizer_opt_ast(realized_ast:UOp, real_bufs:List[Buffer], opts=[]
     check_opt(x, lambda: Kernel(realized_ast), color_sizes[i] if i < len(color_sizes) else None)
   return lins
 
-class TestKernelOpts(unittest.TestCase):
+class TestKernelOpts(TrackedTestCase):
   @unittest.skipUnless(Device[Device.DEFAULT].renderer.has_local, "test requires locals")
   @unittest.skipUnless(Device[Device.DEFAULT].renderer.has_shared, "test requires shared")
   def test_local_and_grouped_reduce(self):

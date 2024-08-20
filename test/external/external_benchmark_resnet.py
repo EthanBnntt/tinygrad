@@ -1,4 +1,5 @@
 import functools
+from test.helpers import TrackedTestCase
 import time
 import unittest
 
@@ -27,7 +28,7 @@ from examples.hlb_cifar10 import UnsyncedBatchNorm
 
 bs = getenv("BS", 64)
 
-class BenchmarkResnetTrain(unittest.TestCase):
+class BenchmarkResnetTrain(TrackedTestCase):
   def _get_layer(self, layer_i, slice_i):
     # isolate to conv, with or without BN
     conv = getenv("CONV", 0)

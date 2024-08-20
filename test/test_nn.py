@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from test.helpers import TrackedTestCase
 import unittest
 import numpy as np
 import torch
@@ -12,7 +13,7 @@ from tinygrad.engine.schedule import create_schedule
 from tinygrad.engine.realize import run_schedule
 
 @unittest.skipIf(CI and Device.DEFAULT in {"CUDA", "NV"}, "slow")
-class TestNN(unittest.TestCase):
+class TestNN(TrackedTestCase):
   @unittest.skipIf(Device.DEFAULT == "WEBGPU", "no int64 on WebGPU")
   def test_sparse_cat_cross_entropy(self):
     # create in tinygrad

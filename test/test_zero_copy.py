@@ -1,4 +1,5 @@
 import unittest
+from test.helpers import TrackedTestCase
 from tinygrad import Tensor, Device
 import time
 
@@ -12,7 +13,7 @@ def time_tensor_numpy(out:Tensor):
   return min(times)
 
 N = 4096
-class TestZeroCopy(unittest.TestCase):
+class TestZeroCopy(TrackedTestCase):
   @unittest.skipIf(Device.DEFAULT not in {"CLANG", "LLVM", "CPU", "METAL"}, "device isn't zero copy")
   def test_zero_copy_from_default_to_cpu(self):
     demo = Tensor.rand(1).realize()

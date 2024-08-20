@@ -1,4 +1,5 @@
 # ruff: noqa: E501
+from test.helpers import TrackedTestCase
 # tests where the Linearizer is doing something dumb
 # like test_linearizer_failures, but they don't have to fail
 
@@ -11,7 +12,7 @@ from tinygrad.shape.shapetracker import ShapeTracker, View
 from tinygrad.engine.search import Opt, OptOps
 from tinygrad.codegen.kernel import Kernel
 
-class TestLinearizerDumb(unittest.TestCase):
+class TestLinearizerDumb(TrackedTestCase):
   @unittest.skipUnless(Device.DEFAULT == "METAL", "only tested on METAL")
   def test_unmerged_ifs(self):
     ast = LazyOp(MetaOps.KERNEL, arg=None, src=(

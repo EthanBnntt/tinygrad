@@ -1,4 +1,5 @@
 import time, random, unittest, itertools
+from test.helpers import TrackedTestCase
 from unittest.mock import patch
 from io import StringIO
 from collections import namedtuple
@@ -6,7 +7,7 @@ from tqdm import tqdm
 from tinygrad.helpers import tqdm as tinytqdm, trange as tinytrange
 import numpy as np
 
-class TestProgressBar(unittest.TestCase):
+class TestProgressBar(TrackedTestCase):
   def _compare_bars(self, bar1, bar2):
     prefix1, prog1, suffix1 = bar1.split("|")
     prefix2, prog2, suffix2 = bar2.split("|")

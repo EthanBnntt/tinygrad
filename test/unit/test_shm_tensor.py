@@ -1,10 +1,11 @@
 import unittest
+from test.helpers import TrackedTestCase
 import multiprocessing.shared_memory as shared_memory
 from tinygrad.helpers import CI
 from tinygrad.tensor import Tensor, Device
 import numpy as np
 
-class TestRawShmBuffer(unittest.TestCase):
+class TestRawShmBuffer(TrackedTestCase):
   def test_e2e(self):
     t = Tensor.randn(2, 2, 2).realize()
 

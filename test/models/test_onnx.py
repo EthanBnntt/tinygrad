@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from test.helpers import TrackedTestCase
 import os
 import time
 import unittest
@@ -20,7 +21,7 @@ OPENPILOT_MODEL = "https://github.com/commaai/openpilot/raw/v0.9.4/selfdrive/mod
 
 np.random.seed(1337)
 
-class TestOnnxModel(unittest.TestCase):
+class TestOnnxModel(TrackedTestCase):
   def test_benchmark_openpilot_model(self):
     onnx_model = onnx.load(fetch(OPENPILOT_MODEL))
     run_onnx = get_run_onnx(onnx_model)

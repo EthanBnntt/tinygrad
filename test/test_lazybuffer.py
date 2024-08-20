@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from test.helpers import TrackedTestCase
 import numpy as np
 import unittest
 from tinygrad import Tensor, Device, dtypes
@@ -6,7 +7,7 @@ from tinygrad.ops import UOps
 from tinygrad.lazy import LazyBuffer, MetaOps
 from tinygrad.engine.schedule import create_schedule
 
-class TestLazyBuffer(unittest.TestCase):
+class TestLazyBuffer(TrackedTestCase):
   def test_fromcpu_shape_tracker(self):
     def helper(a: np.ndarray):
       print(a.shape, a.strides, a.flags.c_contiguous)
@@ -69,7 +70,7 @@ class TestLazyBuffer(unittest.TestCase):
     assert lb.const(1).base.arg == 1.0
     assert type(lb.const(1).base.arg) is float
 
-class TestReduceOp(unittest.TestCase):
+class TestReduceOp(TrackedTestCase):
   def test_no_split_reduce_kernel(self):
     a = Tensor.rand(4, 4).realize()
     a = a.sum()
@@ -93,7 +94,7 @@ class TestReduceOp(unittest.TestCase):
     for s in sched:
       self.assertIs(s.ast.src[0].src[2].op, UOps.REDUCE_AXIS)
 
-class TestView(unittest.TestCase):
+class TestView(TrackedTestCase):
   def test_all_masked_out(self):
     # start with non CONST MetaOps
     a = Tensor.rand(10, 10)

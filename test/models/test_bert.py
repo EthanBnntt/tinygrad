@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from test.helpers import TrackedTestCase
 import unittest
 import numpy as np
 from tinygrad.tensor import Tensor
@@ -20,7 +21,7 @@ def set_equal_weights(mdl, torch_mdl):
     torch_state[k].copy_(torch.from_numpy(v.numpy()))
   torch_mdl.eval()
 
-class TestBert(unittest.TestCase):
+class TestBert(TrackedTestCase):
   def test_questions(self):
     from extra.models.bert import BertForQuestionAnswering
     from transformers import BertForQuestionAnswering as TorchBertForQuestionAnswering

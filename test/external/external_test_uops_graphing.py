@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from test.helpers import TrackedTestCase
 import unittest
 from tinygrad.tensor import Tensor
 from tinygrad.codegen.kernel import Kernel
@@ -7,7 +8,7 @@ from tinygrad.engine.graph import graph_uops
 from tinygrad.engine.schedule import create_schedule
 from tinygrad.nn import Conv2d
 
-class TestUopsGraph(unittest.TestCase):
+class TestUopsGraph(TrackedTestCase):
   def test_matmul(self):
     N = 1024
     a = Tensor.rand(N,N)

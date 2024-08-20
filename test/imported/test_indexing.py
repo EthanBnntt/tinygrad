@@ -1,4 +1,5 @@
 # test cases are modified from pytorch test_indexing.py https://github.com/pytorch/pytorch/blob/597d3fb86a2f3b8d6d8ee067e769624dcca31cdb/test/test_indexing.py
+from test.helpers import TrackedTestCase
 
 import unittest, random, copy, warnings
 import numpy as np
@@ -85,7 +86,7 @@ def make_tensor(shape, dtype:dtypes, noncontiguous) -> Tensor:
   elif dtype.is_float(): return Tensor.rand(shape=shape, low=-9, high=9, dtype=dtype, contiguous=contiguous)
   else: raise NotImplementedError(f"{dtype} not implemented")
 
-class TestIndexing(unittest.TestCase):
+class TestIndexing(TrackedTestCase):
   def test_index(self):
 
     reference = consec((3, 3, 3))
@@ -1315,7 +1316,7 @@ class TestIndexing(unittest.TestCase):
         t.gather(7, indices)
   '''
 
-class TestNumpy(unittest.TestCase):
+class TestNumpy(TrackedTestCase):
   def test_index_no_floats(self):
     a = Tensor([[[5.]]])
 

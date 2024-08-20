@@ -1,4 +1,5 @@
 import time, unittest
+from test.helpers import TrackedTestCase
 from tinygrad import Tensor, TinyJit, Device, dtypes
 from tinygrad.helpers import getenv, GlobalCounters
 
@@ -28,7 +29,7 @@ def _test(tcount, fxn, dtype=dtypes.float):
   return max(allgbs)
 
 MEMBW = getenv("MEMBW", 10)
-class TestRamBandwidth(unittest.TestCase):
+class TestRamBandwidth(TrackedTestCase):
   def test_add(self): self.assertGreater(_test(2, Tensor.add), MEMBW)
   def test_exp(self): self.assertGreater(_test(1, Tensor.exp), MEMBW)
   def test_sum(self): self.assertGreater(_test(1, Tensor.sum), MEMBW)
@@ -39,7 +40,7 @@ def flopsmax(x):
   for _ in range(500): x = (x*x)+3
   return x
 
-class TestFlops(unittest.TestCase):
+class TestFlops(TrackedTestCase):
   def test_flops_int8(self): _test(1, flopsmax, dtypes.int8)
   def test_flops_fp16(self): _test(1, flopsmax, dtypes.half)
   def test_flops_fp32(self): _test(1, flopsmax)

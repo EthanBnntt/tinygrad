@@ -1,4 +1,5 @@
 from extra.datasets.kits19 import iterate, preprocess
+from test.helpers import TrackedTestCase
 from examples.mlperf.dataloader import batch_load_unet3d
 from test.external.mlperf_unet3d.kits19 import PytTrain, PytVal
 from tinygrad.helpers import temp
@@ -11,7 +12,7 @@ import random
 import tempfile
 import unittest
 
-class ExternalTestDatasets(unittest.TestCase):
+class ExternalTestDatasets(TrackedTestCase):
   def _set_seed(self):
     np.random.seed(42)
     random.seed(42)

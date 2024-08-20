@@ -1,4 +1,5 @@
 # this is an example of how you can write terrible DSP compute breaking ops like warpPerspective
+from test.helpers import TrackedTestCase
 # here we use a CUSTOM op to write atan2
 
 import unittest
@@ -52,7 +53,7 @@ class ATan2(Function):
 from tinygrad.tensor import Tensor
 
 @unittest.skipUnless(Device.DEFAULT in ["CPU", "GPU"], "atan2 is only implemented for CPU and GPU")
-class TestCustomFunction(unittest.TestCase):
+class TestCustomFunction(TrackedTestCase):
   def test_atan2_forward(self):
     # create some random Tensors, permute them just because we can
     a = Tensor.randn(4,4,requires_grad=True).permute(1,0)

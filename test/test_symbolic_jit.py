@@ -1,4 +1,5 @@
 import unittest
+from test.helpers import TrackedTestCase
 
 from test.helpers import assert_jit_cache_len
 from tinygrad.engine.jit import TinyJit
@@ -6,7 +7,7 @@ from tinygrad.shape.symbolic import Variable
 from tinygrad.tensor import Tensor
 import numpy as np
 
-class TestSymbolicJit(unittest.TestCase):
+class TestSymbolicJit(TrackedTestCase):
   def test_plus1(self):
     def f(a): return (a+1).realize()
     jf = TinyJit(f)

@@ -1,4 +1,5 @@
 import unittest
+from test.helpers import TrackedTestCase
 from extra.export_model import export_model, EXPORT_SUPPORTED_DEVICE
 from tinygrad.tensor import Tensor, Device
 import json
@@ -13,7 +14,7 @@ class MockMultiOutputModel:
 
 # TODO: move compile_efficientnet tests here
 @unittest.skipUnless(Device.DEFAULT in EXPORT_SUPPORTED_DEVICE, f"Model export is not supported on {Device.DEFAULT}")
-class TextModelExport(unittest.TestCase):
+class TextModelExport(TrackedTestCase):
   def test_multi_input_model_export(self):
     model = MockMultiInputModel()
     inputs = [Tensor.rand(2,2), Tensor.rand(2,2), Tensor.rand(2,2)]

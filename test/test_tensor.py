@@ -1,4 +1,5 @@
 import subprocess
+from test.helpers import TrackedTestCase
 import numpy as np
 import torch
 import unittest, copy, mmap, random, math
@@ -19,7 +20,7 @@ W_init = np.random.randn(3,3).astype(np.float32)
 m_init = np.random.randn(1,3).astype(np.float32)
 gradient = np.random.randn(1,3).astype(np.float32)
 
-class TestTinygrad(unittest.TestCase):
+class TestTinygrad(TrackedTestCase):
   def test_zerodim_initialization(self):
     self.assertEqual(Tensor(55).shape, ())
     self.assertEqual(Tensor(3.14).shape, ())
@@ -478,7 +479,7 @@ class TestTinygrad(unittest.TestCase):
                     shell=True, check=True)
 
 @unittest.skipIf(CI and Device.DEFAULT in {"GPU", "CUDA", "METAL", "NV", "AMD"}, "no GPU CI")
-class TestMoveTensor(unittest.TestCase):
+class TestMoveTensor(TrackedTestCase):
   d0, d1 = f"{Device.DEFAULT}:0", f"{Device.DEFAULT}:1"
   @given(strat.sampled_from([d0, d1]), strat.sampled_from([d0, d1]),
          strat.sampled_from([dtypes.float16, dtypes.float32]), strat.sampled_from([True, False, None]))
@@ -513,7 +514,7 @@ class TestMoveTensor(unittest.TestCase):
     z.backward()
     np.testing.assert_equal(x.grad.numpy(), [[2,2,2],[0,0,0],[-2,-2,-2]])
 
-class TestZeroShapeTensor(unittest.TestCase):
+class TestZeroShapeTensor(TrackedTestCase):
   def test_shape_stride(self):
     t = Tensor.empty(3, 2, 0)
     assert t.shape == (3, 2, 0)
@@ -645,14 +646,14 @@ class TestZeroShapeTensor(unittest.TestCase):
     np.testing.assert_equal(Tensor([]).sum().numpy(), 0)
     np.testing.assert_equal(Tensor([]).mean().numpy(), float("nan"))
 
-class TestTensorCreationDevice(unittest.TestCase):
+class TestTensorCreationDevice(TrackedTestCase):
   # test auxiliary tensors are created on the same device
   def test_one_hot(self):
     y = Tensor([1, 2, 3]).to("CLANG")
     x = y.one_hot(10)
     x.realize()
 
-class TestTrainMode(unittest.TestCase):
+class TestTrainMode(TrackedTestCase):
   def test_train_mode(self):
     assert not Tensor.training
     @Tensor.train()
@@ -661,7 +662,7 @@ class TestTrainMode(unittest.TestCase):
     f()
     assert not Tensor.training
 
-class TestInferenceMode(unittest.TestCase):
+class TestInferenceMode(TrackedTestCase):
   def test_inference(self):
     x = Tensor(x_init, requires_grad=True)
     m = Tensor(m_init, requires_grad=True)
@@ -697,7 +698,7 @@ class TestInferenceMode(unittest.TestCase):
       assert W.grad is None
     f(x, m, W)
 
-class TestTensorMetadata(unittest.TestCase):
+class TestTensorMetadata(TrackedTestCase):
   def test_matmul(self):
     _METADATA.set(None)
     x = Tensor.rand(3, requires_grad=True)

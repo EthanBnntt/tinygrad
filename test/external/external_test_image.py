@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from test.helpers import TrackedTestCase
 import os
 import unittest
 import numpy as np
@@ -10,7 +11,7 @@ from tinygrad.tensor import Tensor
 from tinygrad.nn import Conv2d
 Tensor.no_grad = True
 
-class TestImage(unittest.TestCase):
+class TestImage(TrackedTestCase):
   def test_create_image(self):
     t = Tensor.ones(128, 128, 1)
     t = t.reshape(128, 32, 4) + 3

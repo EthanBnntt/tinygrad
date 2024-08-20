@@ -1,4 +1,5 @@
 import unittest, time, gc
+from test.helpers import TrackedTestCase
 import numpy as np
 from tinygrad.nn import optim
 from tinygrad.nn.state import get_parameters
@@ -36,7 +37,7 @@ def helper_test(nm, gen, model, max_memory_allowed, max_kernels_allowed, all_jit
   if all_jitted:
     assert kernels_used > 0 and kernels_used == GlobalCounters.kernel_count or (kernels_used <= GlobalCounters.kernel_count and getattr(Device[Device.DEFAULT], "graph", None)), f"only {kernels_used} out of {GlobalCounters.kernel_count} were jitted"  # noqa: E501
 
-class TestRealWorld(unittest.TestCase):
+class TestRealWorld(TrackedTestCase):
   def setUp(self):
     gc.collect()
     global global_mem_used

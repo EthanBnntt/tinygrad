@@ -1,8 +1,9 @@
 #!/usr/bin/env python
+from test.helpers import TrackedTestCase
 import unittest
 from tinygrad.shape.view import View
 
-class TestView(unittest.TestCase):
+class TestView(TrackedTestCase):
   def test_canonicalize_empty_mask(self):
     v = View.create(shape=(2,2,2), strides=(4,2,1), mask=((0,2),(0,2),(0,2)))
     assert v.mask is None

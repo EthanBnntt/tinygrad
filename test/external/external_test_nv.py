@@ -1,4 +1,5 @@
 import unittest, struct, array, ctypes
+from test.helpers import TrackedTestCase
 from tinygrad import Device, dtypes, Tensor
 from tinygrad.helpers import to_mv
 from tinygrad.engine.schedule import create_schedule
@@ -14,7 +15,7 @@ from tinygrad.shape.shapetracker import ShapeTracker
 from tinygrad.shape.view import View
 
 @unittest.skipUnless(Device.DEFAULT == "NV", "NV specific tests/fixes")
-class TestNV(unittest.TestCase):
+class TestNV(TrackedTestCase):
   @classmethod
   def setUpClass(self):
     TestNV.d0: NVDevice = Device["NV"]

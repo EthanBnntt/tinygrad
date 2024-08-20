@@ -1,11 +1,12 @@
 import unittest
+from test.helpers import TrackedTestCase
 from tinygrad.shape.symbolic import Variable
 from tinygrad.helpers import getenv
 from tinygrad.tensor import Tensor
 from examples.gpt2 import Attention
 import numpy as np
 
-class TestSymbolicOps(unittest.TestCase):
+class TestSymbolicOps(TrackedTestCase):
   def test_plus1(self):
     def f(a): return (a+1).realize()
     for i in range(1, 5):

@@ -1,4 +1,5 @@
 from typing import Optional, Tuple, Any, List
+from test.helpers import TrackedTestCase
 import unittest, math
 import numpy as np
 from tinygrad.tensor import Tensor, _to_np_dtype
@@ -65,7 +66,7 @@ def _test_uops_result(output_dtype, uops, res):
   buf.copyout(ret.data)
   return ret[0]
 
-class TestUOps(unittest.TestCase):
+class TestUOps(TrackedTestCase):
   def _equal(self, v1, v2):
     assert isinstance(v2, (float, int, bool))
     if isinstance(v2, float):
@@ -233,7 +234,7 @@ class TestExecALU(TestUOps):
     self.assertEqual(exec_alu(BinaryOps.ADD, dtypes.int8, (1, 1)), 2)
     self.assertEqual(exec_alu(BinaryOps.ADD, dtypes.int8, (-128, 0)), -128)
 
-class TestConstantFolding(unittest.TestCase):
+class TestConstantFolding(TrackedTestCase):
   def test_cast_const(self):
     t = Tensor(1, dtype=dtypes.float).cast(dtypes.int)
     si = create_schedule([t.lazydata])
@@ -246,7 +247,7 @@ class TestConstantFolding(unittest.TestCase):
     ji = lower_schedule_item(si[-1])
     assert any(uop.op is UOps.BITCAST for uop in ji.prg.p.uops), f"{[uop.op for uop in ji.prg.p.uops]} does not contain bitcast"
 
-class TestGatedStoreRewrite(unittest.TestCase):
+class TestGatedStoreRewrite(TrackedTestCase):
   @unittest.expectedFailure
   def test_tiny_gate_store(self):
     gmem = UOp(UOps.DEFINE_GLOBAL, PtrDType(dtypes.float), (), 0)
@@ -302,7 +303,7 @@ class TestGatedStoreRewrite(unittest.TestCase):
     self.assertEqual(len(gated_uops), 2)
     for x in gated_uops: self.assertIs(x.op, UOps.STORE)
 
-class TestLocalAccess(unittest.TestCase):
+class TestLocalAccess(TrackedTestCase):
   # NOTE: this is failing on METAL CI, no idea why. Works locally.
   @unittest.skipIf(Device.DEFAULT == "METAL" and CI, "failing only in CI")
   @unittest.skipUnless(Device[Device.DEFAULT].renderer.has_shared, "test requires shared memory")
@@ -326,7 +327,7 @@ class TestLocalAccess(unittest.TestCase):
     self.assertEqual(_test_uops_result(dtypes.int32, uops, sres), 42)
 
 @unittest.skipUnless(getenv("PTX"), "This only tests assembly backends")
-class TestAssembly(unittest.TestCase):
+class TestAssembly(TrackedTestCase):
   def test_bitshift_left(self):
     g1 = UOp(UOps.DEFINE_GLOBAL, PtrDType(dtypes.int32), (), 0)
     c1 = UOp(UOps.CONST, dtypes.int, (), 2)
@@ -351,7 +352,7 @@ class TestAssembly(unittest.TestCase):
     self.assertEqual(uops[-1].arg, BinaryOps.SHR)
     self.assertEqual(uops[-2].arg, BinaryOps.IDIV)
 
-class TestUOpCompare(unittest.TestCase):
+class TestUOpCompare(TrackedTestCase):
   def test_alu_same_src_different_arg(self):
     a = UOp(UOps.CONST, dtypes.float, (), 2.0)
     b = UOp(UOps.CONST, dtypes.float, (), 3.0)
@@ -378,7 +379,7 @@ class TestUOpStr(TestEqUOps):
     a = NOp(UOps.CONST, dtypes.float, (), 2.0, name="c0") + NOp(UOps.CONST, dtypes.float, (), 3.0, name="c1")
     assert str(eval(str(a))) == str(a)
 
-class TestIndexingOrdering(unittest.TestCase):
+class TestIndexingOrdering(TrackedTestCase):
   # NOTE: these tests skip type_verify since they add dtype to STORE
   @unittest.expectedFailure
   def test_simple_order(self):

@@ -1,4 +1,5 @@
 import unittest
+from test.helpers import TrackedTestCase
 import time
 import numpy as np
 from tinygrad.nn.state import get_parameters
@@ -31,7 +32,7 @@ def check_gc():
     from extra.introspection import print_objects
     assert print_objects() == 0
 
-class TestTrain(unittest.TestCase):
+class TestTrain(TrackedTestCase):
   def test_convnext(self):
     model = ConvNeXt(depths=[1], dims=[16])
     X = np.zeros((BS,3,224,224), dtype=np.float32)

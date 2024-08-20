@@ -1,11 +1,12 @@
 #!/usr/bin/env python
+from test.helpers import TrackedTestCase
 import unittest
 import numpy as np
 from tinygrad import dtypes, Tensor, TinyJit, GlobalCounters, Variable
 
 N = 200  # has to be bigger than the cache to fail
 
-class TestAssign(unittest.TestCase):
+class TestAssign(TrackedTestCase):
   def test_simple_assignment(self):
     a = Tensor(np.arange(N*N, dtype=np.float32)).reshape(N,N)
     b = Tensor(np.arange(N*N, dtype=np.float32)).reshape(N,N)

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from test.helpers import TrackedTestCase
 import unittest
 import numpy as np
 import tensorflow as tf
@@ -100,7 +101,7 @@ def create_tf_polylr(initial_lr, end_lr, train_steps, warmup, power=2, skip_list
   return PolynomialDecayWithWarmup_tf(1, 1, train_steps,
                                       initial_learning_rate=initial_lr, end_learning_rate=end_lr, warmup_epochs=warmup)
 
-class ExternalTestOptim(unittest.TestCase):
+class ExternalTestOptim(TrackedTestCase):
   def setUp(self):
     self.old_training = Tensor.training
     Tensor.training = True

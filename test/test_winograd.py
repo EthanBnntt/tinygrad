@@ -1,11 +1,12 @@
 import unittest
+from test.helpers import TrackedTestCase
 from tinygrad import Tensor, GlobalCounters
 from tinygrad.ops import UOps
 from tinygrad.helpers import Timing, CI, Profiling, WINO, DEBUG, getenv
 from tinygrad.codegen.kernel import Kernel
 from tinygrad.engine.schedule import create_schedule
 
-class TestWinograd(unittest.TestCase):
+class TestWinograd(TrackedTestCase):
   def setUp(self):
     self.old = WINO.value
     WINO.value = 1

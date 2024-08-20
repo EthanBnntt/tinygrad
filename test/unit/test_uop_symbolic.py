@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from test.helpers import TrackedTestCase
 import unittest, pickle
 from typing import Tuple
 #from tinygrad.shape.symbolic import MulNode, SumNode, Variable, NumNode, LtNode, ModNode, Node, sym_render, sym_infer, create_lt_node, create_ge_node
@@ -45,12 +46,12 @@ def MulNode(x, y): return x*y
 # *** leave tests the same
 
 @unittest.skip("not supported on uops yet")
-class TestSymbolicPickle(unittest.TestCase):
+class TestSymbolicPickle(TrackedTestCase):
   def _test_pickle_unpickle(self, x): self.assertEqual(x, pickle.loads(pickle.dumps(x)))
   def test_pickle_variable(self): self._test_pickle_unpickle(Variable("a", 3, 8))
   def test_pickle_variable_times_2(self): self._test_pickle_unpickle(Variable("a", 3, 8)*2)
 
-class TestSymbolic(unittest.TestCase):
+class TestSymbolic(TrackedTestCase):
   def helper_test_variable(self, v, n, m, s):
     rendered, nmin, nmax = render(v)
     if isinstance(s, set):
@@ -400,7 +401,7 @@ class TestSymbolic(unittest.TestCase):
     self.helper_test_variable((gidx//4)*4+gidx%4, 0, 124, "gidx")
 
 @unittest.skip("not supported on uops yet")
-class TestSymbolicNumeric(unittest.TestCase):
+class TestSymbolicNumeric(TrackedTestCase):
   def helper_test_numeric(self, f):
     # TODO: why are the negative tests broken? (even if we did support negative variables)
     #MIN, MAX = -10, 10
@@ -430,7 +431,7 @@ class TestSymbolicNumeric(unittest.TestCase):
   def test_times_2_plus_3_div_4(self): self.helper_test_numeric(lambda x: (x*2 + 3)//4)
   def test_times_2_plus_3_div_4_mod_4(self): self.helper_test_numeric(lambda x: ((x*2 + 3)//4)%4)
 
-class TestSymbolicVars(unittest.TestCase):
+class TestSymbolicVars(TrackedTestCase):
   def test_simple(self):
     z = NumNode(0)
     a = Variable("a", 0, 10)
@@ -460,7 +461,7 @@ class TestSymbolicVars(unittest.TestCase):
     assert (a//4 + a//6).vars() == {a}
 
 @unittest.skip("not supported on uops yet")
-class TestSymbolicMinMax(unittest.TestCase):
+class TestSymbolicMinMax(TrackedTestCase):
   def test_min_max_known(self):
     a = Variable("a", 1, 8)
     assert max(1, a) == max(a, 1) == a
@@ -468,7 +469,7 @@ class TestSymbolicMinMax(unittest.TestCase):
 
 """
 @unittest.skip("not supported on uops yet")
-class TestSymRender(unittest.TestCase):
+class TestSymRender(TrackedTestCase):
   def test_sym_render(self):
     a = Variable("a", 1, 8)
     b = Variable("b", 1, 10)
@@ -478,7 +479,7 @@ class TestSymRender(unittest.TestCase):
     assert sym_render(a*b) == "(a*b)"
 
 @unittest.skip("not supported on uops yet")
-class TestSymInfer(unittest.TestCase):
+class TestSymInfer(TrackedTestCase):
   def test_sym_infer(self):
     a = Variable("a", 0, 10)
     b = Variable("b", 0, 10)
@@ -494,7 +495,7 @@ class TestSymInfer(unittest.TestCase):
     assert sym_infer(a*b+c, var_vals) == 10
 
 @unittest.skip("not supported on uops yet")
-class TestSymbolicSymbolicOps(unittest.TestCase):
+class TestSymbolicSymbolicOps(TrackedTestCase):
   def test_node_divmod_node(self):
     i = Variable("i", 1, 10)
     idx0 = Variable("idx0", 0, i*3-1)
@@ -617,7 +618,7 @@ class TestSymbolicSymbolicOps(unittest.TestCase):
     assert c == NumNode(2)
 """
 
-class TestSymbolicRealWorld(unittest.TestCase):
+class TestSymbolicRealWorld(TrackedTestCase):
   @unittest.expectedFailure
   def test_resnet_half(self):
     gidx0 = Variable("gidx0", 0, 3)

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from test.helpers import TrackedTestCase
 import unittest
 import numpy as np
 from tinygrad import Tensor, dtypes
@@ -13,7 +14,7 @@ def helper_test_jitted_correctness(gen, train, train_jit):
   for _ in range(5): jit = train_jit(*gen()).numpy()
   np.testing.assert_allclose(nojit, jit, rtol=1e-3, atol=1e-5)
 
-class TestJittedModels(unittest.TestCase):
+class TestJittedModels(TrackedTestCase):
   def test_jitted_tiny_llama(self):
     old_float = dtypes.default_float
     dtypes.default_float = dtypes.float16

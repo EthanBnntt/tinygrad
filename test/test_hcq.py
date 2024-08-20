@@ -1,4 +1,5 @@
 import unittest, ctypes, struct
+from test.helpers import TrackedTestCase
 from tinygrad import Device, Tensor, dtypes
 from tinygrad.helpers import CI, getenv
 from tinygrad.device import Buffer, BufferOptions, HCQCompiled
@@ -9,7 +10,7 @@ from tinygrad.codegen.kernel import Kernel, Opt, OptOps
 MOCKGPU = getenv("MOCKGPU")
 
 @unittest.skipUnless(issubclass(type(Device[Device.DEFAULT]), HCQCompiled), "HCQ device required to run")
-class TestHCQ(unittest.TestCase):
+class TestHCQ(TrackedTestCase):
   @classmethod
   def setUpClass(self):
     TestHCQ.d0 = Device[Device.DEFAULT]

@@ -1,11 +1,12 @@
 import unittest
+from test.helpers import TrackedTestCase
 import pickle
 from tinygrad.helpers import diskcache_get, diskcache_put, diskcache, diskcache_clear
 
 def remote_get(table,q,k): q.put(diskcache_get(table, k))
 def remote_put(table,k,v): diskcache_put(table, k, v)
 
-class DiskCache(unittest.TestCase):
+class DiskCache(TrackedTestCase):
   def test_putget(self):
     table = "test_putget"
     diskcache_put(table, "hello", "world")

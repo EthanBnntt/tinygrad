@@ -1,7 +1,8 @@
 import unittest
+from test.helpers import TrackedTestCase
 from extra.models import resnet
 
-class TestResnet(unittest.TestCase):
+class TestResnet(TrackedTestCase):
   def test_model_load(self):
     model = resnet.ResNet18()
     model.load_from_pretrained()

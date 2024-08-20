@@ -1,7 +1,8 @@
 import unittest, subprocess, platform
+from test.helpers import TrackedTestCase
 from tinygrad.runtime.support.elf import elf_loader
 
-class TestElfLoader(unittest.TestCase):
+class TestElfLoader(TrackedTestCase):
   def test_load_clang_jit_strtab(self):
     src = '''
       void relocation(int); // will be a jump to relocation (needed for .rela.text to exist)

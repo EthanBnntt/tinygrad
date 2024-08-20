@@ -1,9 +1,10 @@
 #!/usr/bin/env python
+from test.helpers import TrackedTestCase
 import unittest
 from tinygrad.tensor import Tensor
 from tinygrad import Device
 
-class TestKernelCache(unittest.TestCase):
+class TestKernelCache(TrackedTestCase):
   def test_kernel_cache_in_action(self):
     if Device.DEFAULT not in ["CLANG"]:
       self.skipTest("No custom kernel cache is implemented")

@@ -1,4 +1,5 @@
 import unittest, time
+from test.helpers import TrackedTestCase
 
 from tinygrad import Tensor, TinyJit, GlobalCounters, Device
 from tinygrad.helpers import getenv, Context
@@ -11,7 +12,7 @@ from extra.models import bert
 bs = getenv("BS", 16)
 seq_len = getenv("SEQ_LEN", 512)
 
-class BenchmarkBertTrain(unittest.TestCase):
+class BenchmarkBertTrain(TrackedTestCase):
   def _get_layer(self, layer_id):
     if not hasattr(self, "model"):
       dropout_prob = 0.0 if getenv("DISABLE_DROPOUT") else 0.1

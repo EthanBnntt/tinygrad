@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from test.helpers import TrackedTestCase
 import gc
 import unittest
 import numpy as np
@@ -7,7 +8,7 @@ from tinygrad.tensor import Tensor
 def tensors_allocated():
   return sum([isinstance(x, Tensor) for x in gc.get_objects()])
 
-class TestGC(unittest.TestCase):
+class TestGC(TrackedTestCase):
 
   def test_gc(self):
     a = Tensor.rand(4, 4, requires_grad=True)

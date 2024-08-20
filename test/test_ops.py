@@ -1,8 +1,8 @@
 import time, math, unittest
+from test.helpers import TrackedTestCase
 import numpy as np
 from typing import List, Callable
 import torch
-from test.helpers import TrackedTestCase
 from tinygrad.helpers import getenv, IMAGE, DEBUG, CI
 from tinygrad import Tensor, Device, dtypes
 from tinygrad.tensor import _to_np_dtype
@@ -2053,7 +2053,7 @@ class TestOps(TrackedTestCase):
     helper_test_op([(3, 3)], lambda x: x.int(), forward_only=True)
     helper_test_op([(3, 3)], lambda x: x.bool(), forward_only=True)
 
-class TestOpsUint8(unittest.TestCase):
+class TestOpsUint8(TrackedTestCase):
   @unittest.skip('this is broken for negative numbers')
   def test_cast(self):
     helper_test_op([(2,3,64,64)], lambda x: x.type(torch.uint8), lambda x: x.cast('uint8'), forward_only=True)

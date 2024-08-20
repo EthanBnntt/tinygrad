@@ -1,4 +1,5 @@
 import unittest, functools, random
+from test.helpers import TrackedTestCase
 from typing import List
 from tinygrad import Tensor, Device, nn, GlobalCounters, TinyJit, dtypes
 from tinygrad.ops import MetaOps, ReduceOps, BinaryOps, UOps
@@ -36,7 +37,7 @@ def _test_allreduce(t:Tensor):
   return aa, b
 
 @unittest.skipIf(CI and Device.DEFAULT in ("GPU", "CUDA", "METAL"), "no GPU CI")
-class TestMultiTensor(unittest.TestCase):
+class TestMultiTensor(TrackedTestCase):
   def test_to(self):
     X = Tensor.ones(256).contiguous().realize()
     X.to_(devices_2)
@@ -595,7 +596,7 @@ class TestMultiTensor(unittest.TestCase):
     assert all([lb is lb.base and lb.buffer.base.size == 4 * 16 for lb in t.lazydata.lbs])
 
 @unittest.skipIf(CI and Device.DEFAULT in ("GPU", "CUDA", "METAL"), "no GPU CI")
-class TestHandleData(unittest.TestCase):
+class TestHandleData(TrackedTestCase):
   def test_copied_to_device(self):
     device = (d0, d1, d2, d3)
     t = Tensor([1, 2, 3, 4]).shard(device).realize()
@@ -618,7 +619,7 @@ class TestHandleData(unittest.TestCase):
       assert covered.realize().tolist() == [1, 2, 3, 4]
 
 @unittest.skipIf(CI and Device.DEFAULT in ("GPU", "CUDA", "METAL"), "no GPU CI")
-class TestShrinkMultiTensorShardedAxis(unittest.TestCase):
+class TestShrinkMultiTensorShardedAxis(TrackedTestCase):
   # shrink a multitensor on sharded axis
   def test_shrink_bad_args(self):
     t = Tensor.arange(64).reshape(8, 8).contiguous().realize()
@@ -746,7 +747,7 @@ class TestShrinkMultiTensorShardedAxis(unittest.TestCase):
     np.testing.assert_allclose(output.numpy(), expected)
 
 @unittest.skipIf(CI and Device.DEFAULT in ("GPU", "CUDA", "METAL"), "no GPU CI")
-class TestBatchNorm(unittest.TestCase):
+class TestBatchNorm(TrackedTestCase):
   def test_unsynced_backprop_conv_bn(self):
     with Tensor.train():
       from extra.lr_scheduler import OneCycleLR
@@ -899,7 +900,7 @@ def helper_test_shard_op(shps, fxn, atol=1e-6, rtol=1e-3):
       raise Exception(f"Failed shape {single_out.shape}: {e}")
 
 @unittest.skipIf(CI and Device.DEFAULT in ("GPU", "CUDA", "METAL"), "no GPU CI")
-class TestTensorOps(unittest.TestCase):
+class TestTensorOps(TrackedTestCase):
   def test_interpolate(self):
     helper_test_shard_op([(4,16,16),(4,24,24)], lambda x: Tensor.interpolate(x, (19,19)))
 

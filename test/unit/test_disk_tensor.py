@@ -1,4 +1,5 @@
 import os
+from test.helpers import TrackedTestCase
 import pathlib, tempfile, unittest
 import tarfile
 
@@ -22,7 +23,7 @@ def compare_weights_both(url):
     np.testing.assert_equal(tg_weights[k].numpy(), torch_weights[k].numpy(), err_msg=f"mismatch at {k}, {tg_weights[k].shape}")
   print(f"compared {len(tg_weights)} weights")
 
-class TestTorchLoad(unittest.TestCase):
+class TestTorchLoad(TrackedTestCase):
   # pytorch pkl format
   def test_load_enet(self): compare_weights_both("https://github.com/lukemelas/EfficientNet-PyTorch/releases/download/1.0/efficientnet-b0-355c32eb.pth")
   # pytorch zip format
@@ -44,7 +45,7 @@ def _test_bitcasted(t: Tensor, dt: DType, expected):
   np.testing.assert_allclose(t.bitcast(dt).numpy(), expected)
 
 # sudo su -c 'sync; echo 1 > /proc/sys/vm/drop_caches' && python3 test/unit/test_disk_tensor.py TestRawDiskBuffer.test_readinto_read_speed
-class TestRawDiskBuffer(unittest.TestCase):
+class TestRawDiskBuffer(TrackedTestCase):
   @unittest.skipIf(not test_fn.exists(), "download LLaMA weights for read in speed tests")
   def test_readinto_read_speed(self):
     tst = np.empty(test_size, np.uint8)
@@ -86,7 +87,7 @@ class TestRawDiskBuffer(unittest.TestCase):
     pathlib.Path(tmp).unlink()
 
 @unittest.skipIf(Device.DEFAULT == "WEBGPU", "webgpu doesn't support uint8 datatype")
-class TestSafetensors(unittest.TestCase):
+class TestSafetensors(TrackedTestCase):
   def test_real_safetensors(self):
     import torch
     from safetensors.torch import save_file
@@ -211,7 +212,7 @@ def helper_test_disk_tensor(fn, data, np_fxn, tinygrad_fxn=None):
   np_fxn(numpy_arr)
   np.testing.assert_allclose(tinygrad_tensor.numpy(), numpy_arr)
 
-class TestDiskTensor(unittest.TestCase):
+class TestDiskTensor(TrackedTestCase):
   def test_empty(self):
     pathlib.Path(temp("dt_empty")).unlink(missing_ok=True)
     Tensor.empty(100, 100, device=f"disk:{temp('dt_empty')}")
@@ -336,7 +337,7 @@ class TestDiskTensor(unittest.TestCase):
       on_dev = t.to(Device.DEFAULT).realize()
       np.testing.assert_equal(on_dev.numpy(), t.numpy())
 
-class TestTarExtract(unittest.TestCase):
+class TestTarExtract(TrackedTestCase):
   def setUp(self):
     self.test_dir = tempfile.mkdtemp()
     self.test_files = {
@@ -394,7 +395,7 @@ class TestTarExtract(unittest.TestCase):
     with self.assertRaises(tarfile.ReadError):
       tar_extract(self.invalid_tar_path)
 
-class TestPathTensor(unittest.TestCase):
+class TestPathTensor(TrackedTestCase):
   def setUp(self):
     self.temp_dir = tempfile.TemporaryDirectory()
     self.test_file = pathlib.Path(self.temp_dir.name) / "test_file.bin"

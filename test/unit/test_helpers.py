@@ -1,4 +1,5 @@
 import gzip, unittest
+from test.helpers import TrackedTestCase
 from PIL import Image
 from tinygrad.helpers import Context, ContextVar
 from tinygrad.helpers import merge_dicts, strip_parens, prod, round_up, fetch, fully_flatten, from_mv, to_mv, get_contraction, get_shape
@@ -6,7 +7,7 @@ from tinygrad.shape.symbolic import Variable, NumNode
 
 VARIABLE = ContextVar("VARIABLE", 0)
 
-class TestContextVars(unittest.TestCase):
+class TestContextVars(TrackedTestCase):
   # Ensuring that the test does not modify variables outside the tests.
   ctx = Context()
   def setUp(self): TestContextVars.ctx.__enter__()
@@ -109,7 +110,7 @@ with Context(VARIABLE=1):
       ...
     assert D.value == 2, f"Expected D to be 2, but was {D.value}. Indicates that Context.__exit__ did not restore to the correct value."
 
-class TestMergeDicts(unittest.TestCase):
+class TestMergeDicts(TrackedTestCase):
   def test_merge_dicts(self):
     a = {"a": 1, "b": 2}
     b = {"a": 1, "c": 3}
@@ -121,19 +122,19 @@ class TestMergeDicts(unittest.TestCase):
     with self.assertRaises(AssertionError):
       merge_dicts([a, d])
 
-class TestStripParens(unittest.TestCase):
+class TestStripParens(TrackedTestCase):
   def test_simple(self): self.assertEqual("1+2", strip_parens("(1+2)"))
   def test_nested(self): self.assertEqual("1+(2+3)", strip_parens("(1+(2+3))"))
   def test_casted_no_strip(self): self.assertEqual("(int)(1+2)", strip_parens("(int)(1+2)"))
 
-class TestProd(unittest.TestCase):
+class TestProd(TrackedTestCase):
   def test_empty(self): self.assertEqual(1, prod(tuple()))
   def test_ints(self): self.assertEqual(30, prod((2, 3, 5)))
   def test_variable(self): self.assertEqual("(a*12)", prod((Variable("a", 1, 5), 3, 4)).render())
   def test_variable_order(self): self.assertEqual("(a*12)", prod((3, 4, Variable("a", 1, 5))).render())
   def test_num_nodes(self): self.assertEqual(NumNode(6), prod((NumNode(2), NumNode(3))))
 
-class TestRoundUp(unittest.TestCase):
+class TestRoundUp(TrackedTestCase):
   def test_round_up(self):
     self.assertEqual(round_up(-3,4), 0)
     self.assertEqual(round_up(-4,4), -4)
@@ -143,7 +144,7 @@ class TestRoundUp(unittest.TestCase):
     self.assertEqual(round_up(24984, 232), 25056)
 
 @unittest.skip("no fetch tests because they need internet")
-class TestFetch(unittest.TestCase):
+class TestFetch(TrackedTestCase):
   def test_fetch_bad_http(self):
     self.assertRaises(Exception, fetch, 'http://www.google.com/404', allow_caching=False)
 
@@ -179,7 +180,7 @@ class TestFetch(unittest.TestCase):
     with self.assertRaises(gzip.BadGzipFile):
       fetch(no_gzip_url, gunzip=True)
 
-class TestFullyFlatten(unittest.TestCase):
+class TestFullyFlatten(TrackedTestCase):
   def test_fully_flatten(self):
     self.assertEqual(fully_flatten([[1, 3], [1, 2]]), [1, 3, 1, 2])
     self.assertEqual(fully_flatten(((1, 3), (1, 2))), [1, 3, 1, 2])
@@ -188,7 +189,7 @@ class TestFullyFlatten(unittest.TestCase):
     self.assertEqual(fully_flatten([[1, 2, [3, 4]], [5, 6], 7]), [1, 2, 3, 4, 5, 6, 7])
     self.assertEqual(fully_flatten([[1, "ab"], [True, None], [3.14, [5, "b"]]]), [1, "ab", True, None, 3.14, 5, "b"])
 
-class TestMemoryview(unittest.TestCase):
+class TestMemoryview(TrackedTestCase):
   def test_from_mv_to_mv(self):
     base = memoryview(bytearray(b"\x11\x22\x33"*40))
     ct = from_mv(base)
@@ -196,7 +197,7 @@ class TestMemoryview(unittest.TestCase):
     mv[0] = 2
     assert base[0] == 2
 
-class TestGetContraction(unittest.TestCase):
+class TestGetContraction(TrackedTestCase):
   def test_contraction(self):
     r = get_contraction((1,2,3,4), (2,3,4))
     self.assertEqual(r, [[0, 1], [2], [3]])
@@ -265,7 +266,7 @@ class TestGetContraction(unittest.TestCase):
     r = get_contraction((1,1,1,1), (1,1,1,1))
     self.assertEqual(r, [[], [], [], [0,1,2,3]])
 
-class TestGetShape(unittest.TestCase):
+class TestGetShape(TrackedTestCase):
   def test_get_shape(self):
     assert get_shape(2) == ()
     assert get_shape([]) == (0,)

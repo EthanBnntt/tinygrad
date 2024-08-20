@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from test.helpers import TrackedTestCase
 import time
 import unittest
 import torch
@@ -6,7 +7,7 @@ from tinygrad import Tensor, Device
 from tinygrad.helpers import Profiling, CI
 
 @unittest.skipIf(CI and Device.DEFAULT in {"CUDA", "NV"}, "slow")
-class TestConvSpeed(unittest.TestCase):
+class TestConvSpeed(TrackedTestCase):
 
   def test_mnist(self):
     # https://keras.io/examples/vision/mnist_convnet/

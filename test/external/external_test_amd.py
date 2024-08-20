@@ -1,9 +1,10 @@
 import unittest
+from test.helpers import TrackedTestCase
 from tinygrad import Device, Tensor
 from tinygrad.engine.schedule import create_schedule
 from tinygrad.runtime.ops_amd import AMDDevice
 
-class TestAMD(unittest.TestCase):
+class TestAMD(TrackedTestCase):
   @classmethod
   def setUpClass(self):
     TestAMD.d0: AMDDevice = Device["AMD"]

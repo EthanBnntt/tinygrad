@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from test.helpers import TrackedTestCase
 import gc, unittest
 import numpy as np
 import torch
@@ -37,7 +38,7 @@ from extra.models.resnet import ResNet18
 from extra.models.vit import ViT
 
 @unittest.skipUnless(Device.DEFAULT == "GPU", "Not Implemented")
-class TestInferenceMinKernels(unittest.TestCase):
+class TestInferenceMinKernels(TrackedTestCase):
   def setUp(self):
     self.training_old = Tensor.training
     Tensor.training = False
@@ -94,7 +95,7 @@ class TestInferenceMinKernels(unittest.TestCase):
       model(inp, 0).realize()
 
 @unittest.skipUnless(Device.DEFAULT == "GPU", "Not Implemented")
-class TestOptBinOp(unittest.TestCase):
+class TestOptBinOp(TrackedTestCase):
   def _test_no_binop_rerun(self, f1, f2=None, allowed=1):
     a = Tensor.randn(16, 16)
     b = Tensor.randn(16, 16)
@@ -121,7 +122,7 @@ class TestOptBinOp(unittest.TestCase):
   #def test_no_binop_rerun_reduce_alt(self): return self._test_no_binop_rerun(lambda a,b: a.sum(1)+b[0], lambda a,b: a.sum(1).reshape(1,16)+b[0])
 
 @unittest.skipUnless(Device.DEFAULT == "GPU", "Not Implemented")
-class TestOptReduceLoop(unittest.TestCase):
+class TestOptReduceLoop(TrackedTestCase):
   def test_loop_left(self):
     a = Tensor.randn(16, 16)
     b = Tensor.randn(16, 16)
@@ -143,7 +144,7 @@ class TestOptReduceLoop(unittest.TestCase):
       assert cache.count == 2, "loop right fusion broken"
 
 @unittest.skipUnless(Device.DEFAULT == "GPU", "Not Implemented")
-class TestOptWChild(unittest.TestCase):
+class TestOptWChild(TrackedTestCase):
   @unittest.skip("this no longer happens, use realize")
   def test_unrealized_child(self):
     a = Tensor.randn(16, 16)
@@ -156,7 +157,7 @@ class TestOptWChild(unittest.TestCase):
       assert cache.count == 2, "don't fuse if you have children"
 
 @unittest.skipUnless(Device.DEFAULT == "GPU", "Not Implemented")
-class TestOpt(unittest.TestCase):
+class TestOpt(TrackedTestCase):
   def test_muladd(self):
     a,b,c = [Tensor.randn(2,2).realize() for _ in range(3)]
     na,nb,nc = a.numpy(),b.numpy(),c.numpy()

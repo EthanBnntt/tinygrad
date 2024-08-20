@@ -1,4 +1,5 @@
 import unittest
+from test.helpers import TrackedTestCase
 from test.helpers import TestUOps
 from tinygrad import dtypes, Variable
 from tinygrad.dtype import PtrDType
@@ -13,7 +14,7 @@ simple_pm = PatternMatcher([
   ((NOp.var('x') + NOp.cvar('c1')) + NOp.cvar('c2'), lambda x,c1,c2: x + x.const(c1.arg+c2.arg)),
 ])
 
-class TestGraphRewrite(unittest.TestCase):
+class TestGraphRewrite(TrackedTestCase):
   def test_dedup(self):
     v1 = UOp(UOps.DEFINE_VAR, dtypes.float)
     v2 = UOp(UOps.DEFINE_VAR, dtypes.float)
@@ -348,7 +349,7 @@ class TestUOpGraph(TestUOps):
 def expander_rewrite(sink): return graph_rewrite(sink, constant_folder + expander + reducer)
 def float4_rewrite(sink): return graph_rewrite(sink, constant_folder + expander + float4_folding)
 
-class TestExpander(unittest.TestCase):
+class TestExpander(TrackedTestCase):
   def test_expand_add_broadcast(self):
     e1 = UOp(UOps.EXPAND, dtypes.int, tuple(UOp.const(dtypes.int, x) for x in range(4)), ((1,4),))
     sink = expander_rewrite(e1+3)
@@ -494,7 +495,7 @@ class TestExpander(unittest.TestCase):
     sink = expander_rewrite(sink)
     print(sink)
 
-class TestLoadStoreFolder(unittest.TestCase):
+class TestLoadStoreFolder(TrackedTestCase):
   def test_simple_load_fold(self):
     buf = UOp(UOps.DEFINE_GLOBAL, PtrDType(dtypes.float))
     load = [UOp(UOps.LOAD, dtypes.float, (buf, UOp.const(dtypes.int, i))) for i in range(4)]

@@ -1,4 +1,5 @@
 import unittest
+from test.helpers import TrackedTestCase
 import torch
 import tqdm
 import torchaudio
@@ -9,7 +10,7 @@ import numpy as np
 from whisper.normalizers import EnglishTextNormalizer
 from examples.whisper import init_whisper, transcribe_waveform
 
-class TestWhisperLibriSpeech(unittest.TestCase):
+class TestWhisperLibriSpeech(TrackedTestCase):
   # reference WERs determined by running https://github.com/openai/whisper/blob/main/notebooks/LibriSpeech.ipynb
   # the values should be consistent with the paper D.1.1 https://cdn.openai.com/papers/whisper.pdf#page=22
   # tinygrad WERs do not perfectly match due to what seem to be precision differences vs torch

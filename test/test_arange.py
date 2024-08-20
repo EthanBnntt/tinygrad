@@ -1,4 +1,5 @@
 import unittest, contextlib
+from test.helpers import TrackedTestCase
 import numpy as np
 from tinygrad import Tensor, GlobalCounters, dtypes, nn
 from tinygrad.helpers import CI, Context, getenv
@@ -7,7 +8,7 @@ from tinygrad.codegen.kernel import Opt, OptOps, Kernel, KernelOptError
 from tinygrad.engine.realize import CompiledRunner, ExecItem
 from tinygrad.engine.search import get_kernel_actions
 
-class TestArange(unittest.TestCase):
+class TestArange(TrackedTestCase):
   def _get_flops(self, N, opts=None):
     GlobalCounters.reset()
     tt = Tensor.arange(N)
@@ -59,7 +60,7 @@ class TestArange(unittest.TestCase):
   def test_all_opts_w_upcast_and_unroll(self):
     return self.test_all_opts([Opt(OptOps.UPCAST, 0, 4), Opt(OptOps.UNROLL, 0, 4)], [Opt(op=OptOps.GROUP, axis=0, amt=0)])
 
-class TestIndexing(unittest.TestCase):
+class TestIndexing(TrackedTestCase):
   def test_arange_2_reduce(self):
     needle = Tensor.zeros(16384, dtype=dtypes.int).contiguous()
     needle[1337] = 1

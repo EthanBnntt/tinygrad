@@ -1,4 +1,5 @@
 import unittest
+from test.helpers import TrackedTestCase
 import numpy as np
 
 from tinygrad.helpers import BEAM, Timing, CI
@@ -9,7 +10,7 @@ from tinygrad.nn import Conv2d
 def rand(*shape):
   return Tensor(np.random.rand(*shape).astype(np.float32))
 
-class TestBeamSearch(unittest.TestCase):
+class TestBeamSearch(TrackedTestCase):
   def setUp(self):
     self.old_beam = BEAM.value
     BEAM.value = 2

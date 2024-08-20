@@ -1,4 +1,5 @@
 import unittest, struct, contextlib, tempfile, pathlib, json, time, atexit, random
+from test.helpers import TrackedTestCase
 from tinygrad import Device, Tensor, dtypes, TinyJit
 from tinygrad.helpers import CI, getenv, Context, ProfileLogger
 from tinygrad.device import Buffer, BufferOptions, HCQCompiled
@@ -69,7 +70,7 @@ def helper_validate_node(node, duration_s=10, ts_age_s=30, profile=None, pid_nam
   assert tid_name is None or tids[node['tid']] == tid_name
 
 @unittest.skipUnless(issubclass(type(Device[Device.DEFAULT]), HCQCompiled), "HCQ device required to run")
-class TestProfiler(unittest.TestCase):
+class TestProfiler(TrackedTestCase):
   @classmethod
   def setUpClass(self):
     TestProfiler.d0 = Device[Device.DEFAULT]

@@ -1,4 +1,5 @@
 from __future__ import annotations
+from test.helpers import TrackedTestCase
 import unittest
 from math import prod
 
@@ -39,7 +40,7 @@ def apply(tor, ten, tor_fn, ten_fn=None):
   return tor, ten, ok
 
 @unittest.skipIf(CI and Device.DEFAULT == "CLANG", "slow")
-class TestShapeOps(unittest.TestCase):
+class TestShapeOps(TrackedTestCase):
   @settings.get_profile(__file__)
   @given(st_shape(), st_int32, st.one_of(st_int32, st.lists(st_int32)))
   def test_split(self, s:tuple[int, ...], dim:int, sizes:int|list[int]):

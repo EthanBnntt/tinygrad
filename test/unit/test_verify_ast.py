@@ -1,4 +1,5 @@
 from __future__ import annotations
+from test.helpers import TrackedTestCase
 import unittest
 from tinygrad.codegen.kernel import Kernel
 from tinygrad.dtype import PtrDType
@@ -22,7 +23,7 @@ def helper_test_verify_ast(*stores:UOp) -> Kernel:
   if DEBUG >= 4: print(k.to_program().src)
   return k
 
-class TestVerifyAST(unittest.TestCase):
+class TestVerifyAST(TrackedTestCase):
   def test_tiny_add(self):
     dtype = dtypes.int
     buf_0 = UOp(UOps.DEFINE_GLOBAL, PtrDType(dtype), (), 0)

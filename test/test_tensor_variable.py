@@ -1,8 +1,9 @@
 import unittest
+from test.helpers import TrackedTestCase
 import numpy as np
 from tinygrad import Tensor, Variable
 
-class TestTensorVariable(unittest.TestCase):
+class TestTensorVariable(TrackedTestCase):
   def test_add_tvar(self):
     vv = Variable("a", 0, 10)
     vv.bind(1)

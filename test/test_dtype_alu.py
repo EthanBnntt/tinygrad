@@ -1,4 +1,5 @@
 import unittest
+from test.helpers import TrackedTestCase
 
 from tinygrad import Tensor, dtypes, Device
 import operator
@@ -92,7 +93,7 @@ def universal_test_midcast(a, b, c, op1, op2, d1:DType, d2:DType):
   numpy_value = op2[1](op1[1](an, bn).astype(_to_np_dtype(d2)), cn)
   np.testing.assert_allclose(tensor_value, numpy_value, rtol=1e-6 if getenv("PTX") else 1e-7)
 
-class TestDTypeALU(unittest.TestCase):
+class TestDTypeALU(TrackedTestCase):
   @unittest.skipUnless(is_dtype_supported(dtypes.float64, Device.DEFAULT), f"no float64 on {Device.DEFAULT}")
   @given(ht.float64, ht.float64, strat.sampled_from(binary_operations))
   def test_float64(self, a, b, op): universal_test(a, b, dtypes.float64, op)
@@ -160,7 +161,7 @@ class TestDTypeALU(unittest.TestCase):
   @given(ht.int32, strat.sampled_from(dtypes_float+dtypes_int+dtypes_bool))
   def test_int32_cast(self, a, dtype): universal_test_cast(a, dtypes.int32, dtype)
 
-class TestFromFuzzer(unittest.TestCase):
+class TestFromFuzzer(TrackedTestCase):
   @given(strat.sampled_from(dtypes_float))
   def test_sin(self, dtype):
     if not is_dtype_supported(dtype): return

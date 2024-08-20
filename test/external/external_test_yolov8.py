@@ -1,4 +1,5 @@
 import numpy as np
+from test.helpers import TrackedTestCase
 from examples.yolov8 import YOLOv8, get_variant_multiples, preprocess, postprocess, label_predictions
 import unittest
 import io, cv2
@@ -7,7 +8,7 @@ import ultralytics
 from tinygrad.nn.state import safe_load, load_state_dict
 from tinygrad.helpers import fetch
 
-class TestYOLOv8(unittest.TestCase):
+class TestYOLOv8(TrackedTestCase):
   def test_all_load_weights(self):
     for variant in ['n', 's', 'm', 'l', 'x']:
       depth, width, ratio = get_variant_multiples(variant)

@@ -1,13 +1,14 @@
 #!/usr/bin/env python
+from test.helpers import TrackedTestCase
 import unittest, pickle
 from tinygrad.shape.symbolic import MulNode, SumNode, Variable, NumNode, LtNode, ModNode, Node, sym_render, sym_infer, create_lt_node, create_ge_node
 
-class TestSymbolicPickle(unittest.TestCase):
+class TestSymbolicPickle(TrackedTestCase):
   def _test_pickle_unpickle(self, x): self.assertEqual(x, pickle.loads(pickle.dumps(x)))
   def test_pickle_variable(self): self._test_pickle_unpickle(Variable("a", 3, 8))
   def test_pickle_variable_times_2(self): self._test_pickle_unpickle(Variable("a", 3, 8)*2)
 
-class TestSymbolic(unittest.TestCase):
+class TestSymbolic(TrackedTestCase):
   def helper_test_variable(self, v, n, m, s):
     self.assertEqual(v.render(), s)
     self.assertEqual(v.min, n)
@@ -307,7 +308,7 @@ class TestSymbolic(unittest.TestCase):
     self.helper_test_variable((gidx0*4+lidx2*2+lidx3)//12, 0, 4, "(((lidx2//2)+gidx0)//3)")
     self.helper_test_variable((lidx2*2+gidx0*4+lidx3)//12, 0, 4, "(((lidx2//2)+gidx0)//3)")
 
-class TestSymbolicNumeric(unittest.TestCase):
+class TestSymbolicNumeric(TrackedTestCase):
   def helper_test_numeric(self, f):
     # TODO: why are the negative tests broken? (even if we did support negative variables)
     #MIN, MAX = -10, 10
@@ -337,7 +338,7 @@ class TestSymbolicNumeric(unittest.TestCase):
   def test_times_2_plus_3_div_4(self): self.helper_test_numeric(lambda x: (x*2 + 3)//4)
   def test_times_2_plus_3_div_4_mod_4(self): self.helper_test_numeric(lambda x: ((x*2 + 3)//4)%4)
 
-class TestSymbolicVars(unittest.TestCase):
+class TestSymbolicVars(TrackedTestCase):
   def test_simple(self):
     z = NumNode(0)
     a = Variable("a", 0, 10)
@@ -363,13 +364,13 @@ class TestSymbolicVars(unittest.TestCase):
     assert (a * a).vars() == {a}
     assert (a//4 + a//6).vars() == {a}
 
-class TestSymbolicMinMax(unittest.TestCase):
+class TestSymbolicMinMax(TrackedTestCase):
   def test_min_max_known(self):
     a = Variable("a", 1, 8)
     assert max(1, a) == max(a, 1) == a
     assert min(1, a) == min(a, 1) == 1
 
-class TestSymRender(unittest.TestCase):
+class TestSymRender(TrackedTestCase):
   def test_sym_render(self):
     a = Variable("a", 1, 8)
     b = Variable("b", 1, 10)
@@ -378,7 +379,7 @@ class TestSymRender(unittest.TestCase):
     assert sym_render(a+1) == "(1+a)"
     assert sym_render(a*b) == "(a*b)"
 
-class TestSymInfer(unittest.TestCase):
+class TestSymInfer(TrackedTestCase):
   def test_sym_infer(self):
     a = Variable("a", 0, 10)
     b = Variable("b", 0, 10)
@@ -393,7 +394,7 @@ class TestSymInfer(unittest.TestCase):
     assert sym_infer(a*b, var_vals) == 6
     assert sym_infer(a*b+c, var_vals) == 10
 
-class TestSymbolicSymbolicOps(unittest.TestCase):
+class TestSymbolicSymbolicOps(TrackedTestCase):
   def test_node_divmod_node(self):
     i = Variable("i", 1, 10)
     idx0 = Variable("idx0", 0, i*3-1)
@@ -515,7 +516,7 @@ class TestSymbolicSymbolicOps(unittest.TestCase):
     c = b.substitute({a: NumNode(1)})
     assert c == NumNode(2)
 
-class TestSymbolicRealWorld(unittest.TestCase):
+class TestSymbolicRealWorld(TrackedTestCase):
   def test_resnet_half(self):
     gidx0 = Variable("gidx0", 0, 3)
     gidx1 = Variable("gidx1", 0, 127)

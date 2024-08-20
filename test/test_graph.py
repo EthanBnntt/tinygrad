@@ -1,4 +1,5 @@
 import numpy as np
+from test.helpers import TrackedTestCase
 import unittest, ctypes
 
 from tinygrad.device import Device, Buffer
@@ -73,7 +74,7 @@ def helper_test_graphs(graph_impl, graphs, runs=RUN_CNT):
 
 @unittest.skipUnless(Device[Device.DEFAULT].graph is not None, "graph support required")
 @unittest.skipIf(CI and Device.DEFAULT=="METAL", "no ICB in CI, creation of graph fails")
-class TestGraph(unittest.TestCase):
+class TestGraph(TrackedTestCase):
   def test_order_2_writes_to_same_buf(self):
     d0 = Device.DEFAULT
     b0 = [helper_alloc_rawbuffer(d0, fill=True) for _ in range(5)]

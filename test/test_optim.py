@@ -1,4 +1,5 @@
 import numpy as np
+from test.helpers import TrackedTestCase
 import torch
 import unittest
 from tinygrad import Tensor, Device, dtypes
@@ -42,7 +43,7 @@ def step(tensor, optim, steps=1, teeny=False, **kwargs):
   return net.x.detach().numpy(), net.W.detach().numpy()
 
 @unittest.skipIf(CI and Device.DEFAULT in {"CUDA", "NV"}, "slow")
-class TestOptim(unittest.TestCase):
+class TestOptim(TrackedTestCase):
   def setUp(self):
     self.old_training = Tensor.training
     Tensor.training = True

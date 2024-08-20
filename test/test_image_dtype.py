@@ -1,11 +1,12 @@
 import unittest
+from test.helpers import TrackedTestCase
 import numpy as np
 from tinygrad import Device, dtypes, Tensor, Context
 from tinygrad.dtype import ImageDType
 from tinygrad.engine.realize import lower_schedule
 
 @unittest.skipIf(Device.DEFAULT != "GPU", "only images on GPU")
-class TestImageDType(unittest.TestCase):
+class TestImageDType(TrackedTestCase):
   def test_image_and_back(self):
     data = Tensor.randn(9*27*4).realize()
     tst = data.numpy()

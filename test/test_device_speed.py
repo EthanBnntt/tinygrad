@@ -1,8 +1,9 @@
 import unittest
+from test.helpers import TrackedTestCase
 from tinygrad import Device
 from tinygrad.helpers import Timing, Profiling
 
-class TestDeviceSpeed(unittest.TestCase):
+class TestDeviceSpeed(TrackedTestCase):
   @classmethod
   def setUpClass(cls):
     cls.dev = Device[Device.DEFAULT]

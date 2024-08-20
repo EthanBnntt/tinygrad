@@ -1,10 +1,11 @@
 #!/usr/bin/env python
+from test.helpers import TrackedTestCase
 import pathlib
 import unittest
 import numpy as np
 from tinygrad.tensor import Tensor
 
-class TestVGG7(unittest.TestCase):
+class TestVGG7(TrackedTestCase):
   def test_vgg7(self):
     from examples.vgg7_helpers.waifu2x import Vgg7, image_load
 

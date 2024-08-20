@@ -1,4 +1,5 @@
 from typing import cast
+from test.helpers import TrackedTestCase
 import unittest
 from test.external.process_replay.diff_schedule import diff_schedule
 from tinygrad import Tensor, nn
@@ -6,7 +7,7 @@ from tinygrad.helpers import Context
 from tinygrad.engine.schedule import _graph_schedule
 from tinygrad.lazy import LazyBuffer
 
-class TestDiffSchedule(unittest.TestCase):
+class TestDiffSchedule(TrackedTestCase):
   def test_diff_arange(self):
     # diff a single arange kernel
     X = Tensor.randn(10, 10).realize()

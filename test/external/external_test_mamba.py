@@ -1,4 +1,5 @@
 import unittest
+from test.helpers import TrackedTestCase
 from tinygrad.helpers import CI
 from examples.mamba import Mamba, generate
 from transformers import AutoTokenizer
@@ -7,7 +8,7 @@ PROMPT = 'Why is gravity '
 TOKENIZER = AutoTokenizer.from_pretrained("EleutherAI/gpt-neox-20b")
 
 @unittest.skipIf(CI, "model is slow for CI")
-class TestMamba(unittest.TestCase):
+class TestMamba(TrackedTestCase):
   def test_mamba_130M(self):
     OUT_130M = '''Why is gravity \nnot a good idea?\n\nA:'''
     model = Mamba.from_pretrained('130m')

@@ -1,9 +1,10 @@
 import unittest
+from test.helpers import TrackedTestCase
 from tinygrad import Tensor, Device, Variable
 from examples.gpt2 import Transformer
 from tinygrad.nn.state import get_state_dict
 
-class TestMethodCache(unittest.TestCase):
+class TestMethodCache(TrackedTestCase):
   def setUp(self):
     self.backup_compiler = Device[Device.DEFAULT].compiler
   def tearDown(self):

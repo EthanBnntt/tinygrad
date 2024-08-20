@@ -1,4 +1,5 @@
 import unittest
+from test.helpers import TrackedTestCase
 from tinygrad import Tensor
 from tinygrad.helpers import getenv
 from tinygrad.engine.schedule import create_schedule
@@ -15,7 +16,7 @@ def get_stats(x:Tensor):
   ei = lower_schedule_item(si)
   return ei.prg.op_estimate, ei.prg.mem_estimate
 
-class TestMemoryCount(unittest.TestCase):
+class TestMemoryCount(TrackedTestCase):
   def test_add(self):
     a = Tensor.empty(1024, 1024, dtype=dtypes.uint8)
     b = Tensor.empty(1024, 1024, dtype=dtypes.uint8)
@@ -60,7 +61,7 @@ class TestMemoryCount(unittest.TestCase):
     _, mem = get_stats(a.assign(a+a))
     self.assertEqual(mem, 1024*1024*2)  # 1 read + 1 write
 
-class TestUOpsStats(unittest.TestCase):
+class TestUOpsStats(TrackedTestCase):
   @unittest.skipIf(getenv("PTX"), "wrong in PTX")
   def test_simple_add(self):
     a = Tensor.empty(100,100)
@@ -120,7 +121,7 @@ class TestUOpsStats(unittest.TestCase):
 
 N = 100
 @unittest.skipIf(getenv("PTX"), "wrong in PTX") # maybe?
-class TestStatsOptimized(unittest.TestCase):
+class TestStatsOptimized(TrackedTestCase):
   @classmethod
   def setUpClass(cls):
     cls.ast_gemm = (Tensor.empty(N, N) @ Tensor.empty(N, N)).schedule()[-1].ast

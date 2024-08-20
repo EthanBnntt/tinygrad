@@ -55,7 +55,16 @@ def rand_for_dtype(dt:DType, size:int):
     return np.random.choice([True, False], size=size)
   return np.random.uniform(-10, 10, size=size).astype(_to_np_dtype(dt))
 
-class TestUOps(unittest.TestCase):
+ACTIVE_TEST = ContextVar("ACTIVE_TEST", "")
+
+class TrackedTestCase(unittest.TestCase):
+  """Track test case names for process replay debugging"""
+  def run(self, result:Optional[TestResult]=None) -> Optional[TestResult]:
+    # TODO: ContextVar should handle str too
+    ACTIVE_TEST.value = cast(Any, str(self.id))
+    super().run(result)
+
+class TestUOps(TrackedTestCase):
   def assert_equiv_uops(self, uop1:UOp, uop2:UOp, cache:Optional[Set[Tuple[UOp, UOp]]]=None):
     if cache is None: cache = set()
     if (uop1, uop2) in cache: return
@@ -71,12 +80,3 @@ class TestUOps(unittest.TestCase):
       print(f"{uop1=}")
       print(f"{uop2=}")
       raise e
-
-ACTIVE_TEST = ContextVar("ACTIVE_TEST", "")
-
-class TrackedTestCase(unittest.TestCase):
-  """Track test case names for process replay debugging"""
-  def run(self, result:Optional[TestResult]=None) -> Optional[TestResult]:
-    # TODO: ContextVar should handle str too
-    ACTIVE_TEST.value = cast(Any, str(self.id))
-    super().run(result)

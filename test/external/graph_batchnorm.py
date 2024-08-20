@@ -1,4 +1,5 @@
 import unittest
+from test.helpers import TrackedTestCase
 from tinygrad.nn.state import get_parameters
 from tinygrad.tensor import Tensor
 from tinygrad.nn import Conv2d, BatchNorm2d, optim
@@ -13,7 +14,7 @@ def model_step(lm):
     del x,loss
     optimizer.step()
 
-class TestBatchnorm(unittest.TestCase):
+class TestBatchnorm(TrackedTestCase):
   def test_conv(self):
     class LilModel:
       def __init__(self):

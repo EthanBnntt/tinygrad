@@ -1,4 +1,5 @@
 import torch
+from test.helpers import TrackedTestCase
 from torch import nn
 import unittest
 import numpy as np
@@ -63,7 +64,7 @@ def get_mnist_data():
   Y[range(BS),Y_test[0:BS]] = -1.0*num_classes
   return X, Tensor(Y)
 
-class TestEnd2End(unittest.TestCase):
+class TestEnd2End(TrackedTestCase):
   @classmethod
   def setUpClass(cls):
     cls.X, cls.Y = get_mnist_data()

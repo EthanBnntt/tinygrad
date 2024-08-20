@@ -1,4 +1,5 @@
 # ruff: noqa: E501
+from test.helpers import TrackedTestCase
 import unittest, random
 import numpy as np
 from tinygrad.codegen.kernel import KernelOptError
@@ -35,7 +36,7 @@ def helper_test_lin(lin: Kernel, opts, failed_platforms, rtol=1e-2, atol=1e-2):
   return lin
 
 @unittest.skipIf(CI and Device.DEFAULT in {"CUDA", "NV"}, "failed on CUDA CI")
-class TestLinearizerFailures(unittest.TestCase):
+class TestLinearizerFailures(TrackedTestCase):
   def setUp(self):
     random.seed(42)
     np.random.seed(42)

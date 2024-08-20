@@ -1,11 +1,12 @@
 import time, unittest
+from test.helpers import TrackedTestCase
 from tinygrad.runtime.support.hip_comgr import compile_hip
 from tinygrad import Tensor
 from tinygrad.device import Device
 from tinygrad.engine.schedule import create_schedule
 from tinygrad.codegen.kernel import Kernel
 
-class TestHIPCompileSpeed(unittest.TestCase):
+class TestHIPCompileSpeed(TrackedTestCase):
   @unittest.skipIf(Device.DEFAULT != "HIP", "only run on HIP")
   def test_hip_compile(self):
     a, b = Tensor([1,2,3,4,5]), Tensor([1,2,3,4,5])

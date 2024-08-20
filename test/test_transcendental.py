@@ -1,4 +1,5 @@
 import unittest
+from test.helpers import TrackedTestCase
 from tinygrad import Tensor, Device, dtypes
 from tinygrad.tensor import _to_np_dtype
 from tinygrad.helpers import Context, getenv
@@ -11,7 +12,7 @@ from hypothesis import given, settings, strategies as strat
 settings.register_profile("my_profile", max_examples=200, deadline=None, derandomize=getenv("DERANDOMIZE_CI", False))
 settings.load_profile("my_profile")
 
-class TestTranscendentalMath(unittest.TestCase):
+class TestTranscendentalMath(TrackedTestCase):
   @unittest.skipUnless(is_dtype_supported(dtypes.float64, Device.DEFAULT), f"no float64 on {Device.DEFAULT}")
   @unittest.skipIf(getenv("MOCKGPU") and Device.DEFAULT == "NV", "crashed")
   @given(ht.float64, strat.sampled_from([(Tensor.exp, np.exp), (Tensor.log, np.log), (Tensor.sin, np.sin)]))
@@ -41,7 +42,7 @@ class TestTranscendentalMath(unittest.TestCase):
                                  op[1](np.array([x], dtype=_to_np_dtype(dtypes.float16))),
                                  atol=1e-2, rtol=5e-3)  # exp can have bigger rtol
 
-class TestTranscendentalSchedule(unittest.TestCase):
+class TestTranscendentalSchedule(TrackedTestCase):
   # w/ payne_hanek_reduction (fp32)
   def test_transcendental_sin_fusion(self):
     with Context(TRANSCENDENTAL=2):

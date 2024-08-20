@@ -1,4 +1,5 @@
 import unittest, operator, subprocess, math
+from test.helpers import TrackedTestCase
 import numpy as np
 import torch
 from typing import Any, List
@@ -57,7 +58,7 @@ def _test_bitcast(a:Tensor, target_dtype:DType, target=None):
   if target_dtype == dtypes.bfloat16: raise unittest.SkipTest("no test for bf16 bitcast yet")
   _test_op(lambda: a.bitcast(target_dtype), target_dtype, target or a.numpy().view(_to_np_dtype(target_dtype)).tolist())
 
-class TestDType(unittest.TestCase):
+class TestDType(TrackedTestCase):
   DTYPE: Any = None
   DATA: Any = None
   @classmethod
@@ -136,7 +137,7 @@ def _test_ops(a_dtype:DType, b_dtype:DType, target_dtype=None):
   _assert_eq(Tensor([1,1,1,1], dtype=a_dtype)+Tensor.ones((4,4), dtype=b_dtype), target_dtype, 2*Tensor.ones(4,4).numpy())
 
 @unittest.skipUnless(is_dtype_supported(dtypes.bfloat16), "bfloat16 not supported")
-class TestBFloat16(unittest.TestCase):
+class TestBFloat16(TrackedTestCase):
   def test_bf16_creation_numpy(self):
     data = [-1, 1, 2]
     t = Tensor(data, dtype=dtypes.bfloat16)
@@ -156,7 +157,7 @@ class TestBFloat16(unittest.TestCase):
     np.testing.assert_allclose(t.numpy(), np.eye(3))
 
 @unittest.skipUnless(is_dtype_supported(dtypes.bfloat16), "bfloat16 not supported")
-class TestBFloat16DType(unittest.TestCase):
+class TestBFloat16DType(TrackedTestCase):
   def test_bf16_to_float(self):
     _test_cast(Tensor([100000], dtype=dtypes.bfloat16), dtypes.float32)
 
@@ -170,7 +171,7 @@ class TestBFloat16DType(unittest.TestCase):
     assert tuple(back.numpy().tolist()) == (9984., -1, -1000, -9984, 20)
 
 @unittest.skipUnless(is_dtype_supported(dtypes.bfloat16), "bfloat16 not supported")
-class TestBFloat16DTypeCast(unittest.TestCase):
+class TestBFloat16DTypeCast(TrackedTestCase):
   def test_f16_to_bf16_conversion(self):
     original_tensor = Tensor([1.0, 2.0, 3.0], dtype=dtypes.float16)
     converted_tensor = original_tensor.cast(dtypes.bfloat16)
@@ -247,7 +248,7 @@ class TestUint8DType(TestDType):
     _test_op(lambda: Tensor([255, 254, 253, 252], dtype=dtypes.uint8).cast(dtypes.int8), dtypes.int8, [-1, -2, -3, -4])
 
 @unittest.skipIf(Device.DEFAULT == "WEBGL", "No bitcast on WebGL")
-class TestBitCast(unittest.TestCase):
+class TestBitCast(TrackedTestCase):
   @given(strat.sampled_from(dtype_ints + dtype_floats), strat.sampled_from(dtype_ints + dtype_floats))
   def test_shape_change_bitcast(self, dt1, dt2):
     if dt2 == dtypes.bfloat16: raise unittest.SkipTest("no test for bf16 bitcast yet")
@@ -292,7 +293,7 @@ class TestUint64DType(TestDType):
 
 class TestBoolDType(TestDType): DTYPE = dtypes.bool
 
-class TestImageDType(unittest.TestCase):
+class TestImageDType(TrackedTestCase):
   def test_image_scalar(self):
     assert dtypes.imagef((10,10)).scalar() == dtypes.float32
     assert dtypes.imageh((10,10)).scalar() == dtypes.float32
@@ -300,7 +301,7 @@ class TestImageDType(unittest.TestCase):
     assert dtypes.imagef((10,10)).vec(4) == dtypes.float32.vec(4)
     assert dtypes.imageh((10,10)).vec(4) == dtypes.float32.vec(4)
 
-class TestEqStrDType(unittest.TestCase):
+class TestEqStrDType(TrackedTestCase):
   def test_image_ne(self):
     if ImageDType is None: raise unittest.SkipTest("no ImageDType support")
     assert dtypes.float == dtypes.float32, "float doesn't match?"
@@ -321,7 +322,7 @@ class TestEqStrDType(unittest.TestCase):
     self.assertEqual(str(dtypes.imagef((1,2,4))), "dtypes.imagef((1, 2, 4))")
     self.assertEqual(str(PtrDType(dtypes.float32)), "PtrDType(dtypes.float)")
 
-class TestHelpers(unittest.TestCase):
+class TestHelpers(TrackedTestCase):
   signed_ints = (dtypes.int8, dtypes.int16, dtypes.int32, dtypes.int64)
   uints = (dtypes.uint8, dtypes.uint16, dtypes.uint32, dtypes.uint64)
   floats = (dtypes.float16, dtypes.float32, dtypes.float64)
@@ -382,7 +383,7 @@ class TestHelpers(unittest.TestCase):
         np.testing.assert_equal(dtypes.min(dt), False)
         np.testing.assert_equal(dtypes.max(dt), True)
 
-class TestTypeSpec(unittest.TestCase):
+class TestTypeSpec(TrackedTestCase):
   def setUp(self):
     self.old_default_int, self.old_default_float = dtypes.default_int, dtypes.default_float
   def tearDown(self):
@@ -531,7 +532,7 @@ class TestTypeSpec(unittest.TestCase):
     assert query.scaled_dot_product_attention(key, value, is_causal=False).dtype == data_dtype
     assert query.scaled_dot_product_attention(key, value, attn_mask=mask).dtype == data_dtype
 
-class TestTypePromotion(unittest.TestCase):
+class TestTypePromotion(TrackedTestCase):
   @given(strat.sampled_from(core_dtypes))
   def test_self_promo_to_self(self, dtype):
     assert least_upper_dtype(dtype) == dtype
@@ -565,7 +566,7 @@ class TestTypePromotion(unittest.TestCase):
   def test_float_to_float(self, dt):
     assert least_upper_float(dt) == dt
 
-class TestAutoCastType(unittest.TestCase):
+class TestAutoCastType(TrackedTestCase):
   def setUp(self):
     self.old_default_int, self.old_default_float = dtypes.default_int, dtypes.default_float
   def tearDown(self):
@@ -746,7 +747,7 @@ class TestAutoCastType(unittest.TestCase):
     t.square().mean().backward()
     np.testing.assert_allclose(t.grad.numpy().flatten(), [60000 * 2 / (N*N)] * N*N)
 
-class TestImplicitFunctionTypeChange(unittest.TestCase):
+class TestImplicitFunctionTypeChange(TrackedTestCase):
   def test_functions(self):
     result = []
     for func in [
@@ -761,7 +762,7 @@ class TestImplicitFunctionTypeChange(unittest.TestCase):
       result.append(t.numpy().sum())
     assert all(result)
 
-class TestTensorMethod(unittest.TestCase):
+class TestTensorMethod(TrackedTestCase):
   @given(strat.sampled_from(core_dtypes))
   def test_abs_diff(self, dt):
     if dt == dtypes.bool or not is_dtype_supported(dt): return

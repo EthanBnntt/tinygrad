@@ -1,4 +1,5 @@
 import unittest
+from test.helpers import TrackedTestCase
 import pathlib
 from examples.whisper import init_whisper, load_file_waveform, transcribe_file, transcribe_waveform
 from tinygrad.helpers import CI, fetch
@@ -18,7 +19,7 @@ TRANSCRIPTION_3 = "Just lie back and relax. Is the level of pressure about right
 
 @unittest.skipIf(CI and Device.DEFAULT in ["CLANG"], "slow")
 @unittest.skipUnless(is_dtype_supported(dtypes.float16), "need float16 support")
-class TestWhisper(unittest.TestCase):
+class TestWhisper(TrackedTestCase):
   @classmethod
   def setUpClass(cls):
     model, enc = init_whisper("tiny.en", batch_size=2)

@@ -1,10 +1,11 @@
 import unittest
+from test.helpers import TrackedTestCase
 from tinygrad import Device, dtypes, Tensor
 from tinygrad.device import Buffer
 from tinygrad.lazy import view_supported_devices
 
 @unittest.skipIf(Device.DEFAULT not in view_supported_devices, "subbuffer not supported")
-class TestSubBuffer(unittest.TestCase):
+class TestSubBuffer(TrackedTestCase):
   def setUp(self):
     self.buf = Buffer(Device.DEFAULT, 10, dtypes.uint8).ensure_allocated()
     self.buf.copyin(memoryview(bytearray(range(10))))

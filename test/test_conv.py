@@ -1,9 +1,10 @@
 import unittest
+from test.helpers import TrackedTestCase
 import numpy as np
 from tinygrad.tensor import Tensor
 from tinygrad.helpers import Context
 
-class TestConv(unittest.TestCase):
+class TestConv(TrackedTestCase):
   def test_simple(self):
     x = Tensor.ones(1,12,128,256).contiguous().realize()
     w = Tensor.ones(32,12,3,3).contiguous().realize()

@@ -1,9 +1,10 @@
 import unittest
+from test.helpers import TrackedTestCase
 from tinygrad.shape.shapetracker import ShapeTracker, View
 from tinygrad.shape.symbolic import Variable, NumNode
 from tinygrad.tensor import Tensor
 
-class TestSymbolic(unittest.TestCase):
+class TestSymbolic(TrackedTestCase):
   def test_symbolic_st(self):
     x = Variable("x", 1, 100)
     st = ShapeTracker.from_shape((x, 3))
@@ -44,7 +45,7 @@ class TestSymbolic(unittest.TestCase):
     assert st.shape == (3, i+j+k)
     assert st.real_strides() == (i+j+k, 1)
 
-class TestSymbolicVarVals(unittest.TestCase):
+class TestSymbolicVarVals(TrackedTestCase):
   def test_var_vals_empty(self):
     assert ShapeTracker.from_shape((3, 4, 5)).var_vals == {}
 
@@ -78,7 +79,7 @@ class TestSymbolicVarVals(unittest.TestCase):
     st = st.reshape((3*4*3,))
     assert st.var_vals == {Variable("x", 1, 100): 3}
 
-class TestShapeTrackerUnbind(unittest.TestCase):
+class TestShapeTrackerUnbind(TrackedTestCase):
   def test_view_unbind(self):
     v = Variable("v", 1, 100)
     bv = Variable("v", 1, 100).bind(3)
@@ -102,7 +103,7 @@ class TestShapeTrackerUnbind(unittest.TestCase):
     assert unbound_st == ShapeTracker((View.create(shape=(1, 4), offset=4*v),))
     assert var_val == {v: 2}
 
-class TestSymbolicReshapeFromContiguous(unittest.TestCase):
+class TestSymbolicReshapeFromContiguous(TrackedTestCase):
   def test_reshape_into_symbols_simple(self):
     for i in range(1, 6):
       vi = Variable("i", 1, 5).bind(i)
@@ -151,7 +152,7 @@ class TestSymbolicReshapeFromContiguous(unittest.TestCase):
     new_shape = (2, (NumNode(1)+Variable('start_pos', 1, 128)), 16, 64)
     assert view.reshape(new_shape) is None
 
-class TestSymbolicReshapeFromNonContiguous(unittest.TestCase):
+class TestSymbolicReshapeFromNonContiguous(TrackedTestCase):
   def test_reshape_from_const(self):
     vi = Variable("i", 1, 5).bind(4)
     t = Tensor.ones(3, 4).reshape(3, vi)
@@ -186,7 +187,7 @@ class TestSymbolicReshapeFromNonContiguous(unittest.TestCase):
     assert view.mask == view2.mask == ((1, 3), (0, 3), (0, 2))
     assert not view.contiguous and not view2.contiguous
 
-class TestSymbolicExpand(unittest.TestCase):
+class TestSymbolicExpand(TrackedTestCase):
   def test_expand_into_symbols(self):
     vi = Variable("i", 1, 5).bind(3)
     vj = Variable("j", 1, 5).bind(3)
@@ -202,13 +203,13 @@ class TestSymbolicExpand(unittest.TestCase):
       a = a + 1
       assert a.shape == (3, vi)
 
-class TestSymbolicShrink(unittest.TestCase):
+class TestSymbolicShrink(TrackedTestCase):
   def test_shrink_symbols(self):
     vi = Variable("i", 1, 5)
     t = Tensor.rand(3, 5).shrink(((0, 2), (vi, vi+1)))
     assert t.shape == (2, 1)
 
-class TestSymbolicPad(unittest.TestCase):
+class TestSymbolicPad(TrackedTestCase):
   def test_pad(self):
     v = Variable("v", 1, 100).bind(5)
     t = Tensor.ones(5).reshape(v).pad(((4, 0),)).reshape(9)
@@ -219,7 +220,7 @@ class TestSymbolicPad(unittest.TestCase):
     with self.assertRaises(RuntimeError):
       st.expr_idxs()
 
-class TestSymbolicShapeExpr(unittest.TestCase):
+class TestSymbolicShapeExpr(TrackedTestCase):
   def test_symbolic_expr_idxs(self):
     # taken from symbolic shape llama
     i = Variable("i", 1, 120)

@@ -1,4 +1,5 @@
 import unittest
+from test.helpers import TrackedTestCase
 from typing import List, cast
 import numpy as np
 from tinygrad.device import Buffer, Device
@@ -26,7 +27,7 @@ def _test_uop_result(inputs:List[Tensor], stores:List[UOp]):
   return [np.frombuffer(x.as_buffer(), _to_np_dtype(x.dtype)) for x in outbufs]
 
 @unittest.skipIf(not isinstance(Device[Device.DEFAULT].renderer, CStyleLanguage), "uops are for cstyle")
-class TestCStyleFailures(unittest.TestCase):
+class TestCStyleFailures(TrackedTestCase):
   def test_inline_const_alu(self):
     a = UOp(UOps.DEFINE_GLOBAL, PtrDType(dtypes.int), (), 0)
     b = UOp(UOps.DEFINE_GLOBAL, PtrDType(dtypes.int), (), 1)

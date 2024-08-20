@@ -1,4 +1,5 @@
 import unittest
+from test.helpers import TrackedTestCase
 from typing import List
 from tinygrad.helpers import prod
 from tinygrad.shape.view import View
@@ -34,7 +35,7 @@ def st_equal(st1:ShapeTracker, st2:ShapeTracker) -> bool:
       return False
   return True
 
-class TestShapeTrackerBasics(unittest.TestCase):
+class TestShapeTrackerBasics(TrackedTestCase):
   def test_pad_shrink_removes_mask(self):
     a = ShapeTracker.from_shape((10, 10))
     a = a.pad(((0,2), (0,2)))
@@ -60,7 +61,7 @@ class TestShapeTrackerBasics(unittest.TestCase):
                                  View(shape=(4, 3), strides=(12, 4), offset=0, mask=None, contiguous=False)))
     assert st_equal(multiv, multiv.simplify())
 
-class TestShapeTrackerAdd(unittest.TestCase):
+class TestShapeTrackerAdd(TrackedTestCase):
   def test_simple_add_reshape(self):
     a = ShapeTracker.from_shape((10, 10))
     a = a.reshape((100,))
@@ -91,7 +92,7 @@ class TestShapeTrackerAdd(unittest.TestCase):
                               View(shape=(5,), strides=(1,), offset=0, mask=None, contiguous=True)))
     assert not (st_equal(st1, st2))
 
-class TestShapeTrackerAddVariable(unittest.TestCase):
+class TestShapeTrackerAddVariable(TrackedTestCase):
   def test_self_add(self):
     j = Variable("j", 0, 20).bind(10)
     a = ShapeTracker.from_shape((10,10))
@@ -123,7 +124,7 @@ class TestShapeTrackerAddVariable(unittest.TestCase):
     ret_2 = ShapeTracker((vm1,)) + ShapeTracker((vm2,)).reshape((var_i, var_j, 1))
     assert ret == ret_2
 
-class TestShapeTrackerInvert(unittest.TestCase):
+class TestShapeTrackerInvert(TrackedTestCase):
   def test_invert_reshape(self):
     a = ShapeTracker.from_shape((10, 10))
     x = a.reshape((5, 20))

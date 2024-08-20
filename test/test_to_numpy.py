@@ -1,9 +1,10 @@
 from tinygrad.tensor import Tensor
+from test.helpers import TrackedTestCase
 import numpy as np
 import pickle
 import unittest
 
-class TestToNumpy(unittest.TestCase):
+class TestToNumpy(TrackedTestCase):
   def test_numpy_is_numpy(self):
     output = Tensor.ones((1, 3, 4096)).realize().numpy()
     new = np.copy(output)

@@ -1,9 +1,10 @@
 import unittest, struct
+from test.helpers import TrackedTestCase
 from tinygrad import Tensor, dtypes
 
 # format types: https://docs.python.org/3/library/struct.html
 
-class TestTensorBytes(unittest.TestCase):
+class TestTensorBytes(TrackedTestCase):
   def test_bytes(self):
     lst = Tensor(bytes(b"\xaa\xbb\xcc\xdd"))
     assert lst.tolist() == [170, 187, 204, 221]
@@ -14,7 +15,7 @@ class TestTensorBytes(unittest.TestCase):
     assert abs(lst.tolist()[0] - 0.234) < 1e-6
     assert abs(lst.tolist()[1] - 0.8585) < 1e-6
 
-class TestTensorData(unittest.TestCase):
+class TestTensorData(TrackedTestCase):
   def test_data(self):
     a = Tensor([1,2,3,4], dtype=dtypes.int32)
     dat = a.data()

@@ -1,9 +1,10 @@
 import unittest
+from test.helpers import TrackedTestCase
 import numpy as np
 from tinygrad.tensor import Tensor
 from tinygrad.shape.symbolic import Variable
 
-class TestSample(unittest.TestCase):
+class TestSample(TrackedTestCase):
   def test_sample(self):
     X = Tensor.rand(10000, 50).realize()
     BS = 16

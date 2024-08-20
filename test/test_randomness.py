@@ -1,4 +1,5 @@
 import unittest, math
+from test.helpers import TrackedTestCase
 from functools import partial
 
 import numpy as np
@@ -59,7 +60,7 @@ def equal_distribution(tiny_func, torch_func=None, numpy_func=None, shape=(20, 2
 
 def normal_test(func, shape=(20, 23), alpha=0.05): return equal_distribution(func, numpy_func=lambda x: np.random.randn(*x), shape=shape, alpha=alpha)
 
-class TestRandomness(unittest.TestCase):
+class TestRandomness(TrackedTestCase):
   def test_rand(self):
     self.assertFalse(normal_test(Tensor.rand))
     self.assertTrue(equal_distribution(Tensor.rand, torch.rand, lambda x: np.random.rand(*x)))

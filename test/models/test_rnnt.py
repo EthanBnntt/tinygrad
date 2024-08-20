@@ -1,11 +1,12 @@
 #!/usr/bin/env python
+from test.helpers import TrackedTestCase
 import unittest
 import numpy as np
 from tinygrad.tensor import Tensor
 from extra.models.rnnt import LSTM
 import torch
 
-class TestRNNT(unittest.TestCase):
+class TestRNNT(TrackedTestCase):
   def test_lstm(self):
     BS, SQ, IS, HS, L = 2, 20, 40, 128, 2
 

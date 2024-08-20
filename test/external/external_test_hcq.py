@@ -1,4 +1,5 @@
 import unittest, ctypes, struct, time, array
+from test.helpers import TrackedTestCase
 from tinygrad import Device, Tensor, dtypes
 from tinygrad.helpers import to_mv, CI
 from tinygrad.device import Buffer, BufferOptions
@@ -14,7 +15,7 @@ def _time_queue(q, d):
   return time.perf_counter() - st
 
 @unittest.skipUnless(Device.DEFAULT in ["NV", "AMD"], "Runs only on NV or AMD")
-class TestHCQ(unittest.TestCase):
+class TestHCQ(TrackedTestCase):
   @classmethod
   def setUpClass(self):
     TestHCQ.d0 = Device[Device.DEFAULT]

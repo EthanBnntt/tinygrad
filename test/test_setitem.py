@@ -1,8 +1,9 @@
 import unittest
+from test.helpers import TrackedTestCase
 from tinygrad import Tensor, TinyJit, Variable, dtypes
 import numpy as np
 
-class TestSetitem(unittest.TestCase):
+class TestSetitem(TrackedTestCase):
   def test_simple_setitem(self):
     cases = (
       ((6,6), (slice(2,4), slice(3,5)), Tensor.ones(2,2)),
@@ -116,7 +117,7 @@ class TestSetitem(unittest.TestCase):
       np.testing.assert_allclose(t.numpy(), n)
     np.testing.assert_allclose(t.numpy(), [[1,1,1,1,1,1],[2,2,2,2,2,2],[3,3,3,3,3,3],[4,4,4,4,4,4],[5,5,5,5,5,5],[6,6,6,6,6,6]])
 
-class TestWithGrad(unittest.TestCase):
+class TestWithGrad(TrackedTestCase):
   def test_no_requires_grad_works(self):
     z = Tensor.rand(8, 8)
     x = Tensor.rand(8)

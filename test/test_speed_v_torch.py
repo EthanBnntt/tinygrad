@@ -1,4 +1,5 @@
 import os
+from test.helpers import TrackedTestCase
 os.environ["NVIDIA_TF32_OVERRIDE"] = "0"
 os.environ["MKL_NUM_THREADS"] = "1"
 os.environ["NUMEXPR_NUM_THREADS"] = "1"
@@ -109,7 +110,7 @@ def helper_test_conv(bs, in_chans, out_chans, kernel_size, img_size_y, img_size_
 
 @unittest.skipIf(getenv("BIG") == 0, "no big tests")
 @unittest.skipIf(getenv("MOCKGPU"), "no MOCKGPUs")
-class TestBigSpeed(unittest.TestCase):
+class TestBigSpeed(TrackedTestCase):
   def test_add(self):
     def f(a, b): return a+b
     helper_test_generic_square('add', 8192, f, f)
@@ -130,7 +131,7 @@ class TestBigSpeed(unittest.TestCase):
 
 @unittest.skipIf(getenv("BIG") == 1, "only big tests")
 @unittest.skipIf(getenv("MOCKGPU"), "no MOCKGPUs")
-class TestSpeed(unittest.TestCase):
+class TestSpeed(TrackedTestCase):
   def test_sub(self):
     def f(a, b): return a-b
     helper_test_generic_square('sub', 4096, f, f)

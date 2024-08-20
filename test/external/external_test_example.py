@@ -1,4 +1,5 @@
 import unittest
+from test.helpers import TrackedTestCase
 from tinygrad import Device
 from tinygrad.tensor import Tensor
 from tinygrad.helpers import getenv, CI
@@ -21,7 +22,7 @@ def multidevice_test(fxn):
         fxn(self, device)
   return ret
 
-class TestExample(unittest.TestCase):
+class TestExample(TrackedTestCase):
   @multidevice_test
   def test_convert_to_clang(self, device):
     a = Tensor([[1,2],[3,4]], device=device)

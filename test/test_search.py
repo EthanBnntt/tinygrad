@@ -1,4 +1,5 @@
 import unittest
+from test.helpers import TrackedTestCase
 
 from tinygrad.codegen.kernel import Opt, OptOps
 from tinygrad.codegen.kernel import Kernel
@@ -14,7 +15,7 @@ from tinygrad.engine.realize import capturing
 from tinygrad.shape.shapetracker import ShapeTracker
 from tinygrad.shape.view import View
 
-class TestTimeLinearizer(unittest.TestCase):
+class TestTimeLinearizer(TrackedTestCase):
   def test_reasonable_time(self):
     si = [i for i in create_schedule([Tensor([1,2,3,4]).add(1).lazydata]) if i.ast.op is UOps.SINK][0]
     out = Buffer(Device.DEFAULT, si.outputs[0].size, si.outputs[0].dtype).allocate()
@@ -54,7 +55,7 @@ class TestTimeLinearizer(unittest.TestCase):
     time_linearizer(lin, bufs, allow_test_size=False, cnt=2, disable_cache=True, clear_l2=True)
     assert GlobalCounters.kernel_count == kernel_count, "kernel count was incremented by time_linearizer"
 
-class TestBEAM(unittest.TestCase):
+class TestBEAM(TrackedTestCase):
   def test_dynamic_beam(self):
     # TODO: make this infra globally usable
     class Capture:

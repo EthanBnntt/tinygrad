@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from test.helpers import TrackedTestCase
 import unittest
 import numpy as np
 from tinygrad import Tensor, Device
@@ -50,7 +51,7 @@ class TinyConvNet:
     return x.dot(self.l1)
 
 @unittest.skipIf(CI and Device.DEFAULT == "CLANG", "slow")
-class TestMNIST(unittest.TestCase):
+class TestMNIST(TrackedTestCase):
   def test_sgd_onestep(self):
     np.random.seed(1337)
     model = TinyBobNet()

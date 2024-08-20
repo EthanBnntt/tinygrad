@@ -1,4 +1,5 @@
 import unittest
+from test.helpers import TrackedTestCase
 from pathlib import Path
 
 import cv2
@@ -9,7 +10,7 @@ from tinygrad.helpers import fetch
 chicken_img = cv2.imread(str(Path(__file__).parent.parent / 'models/efficientnet/Chicken.jpg'))
 car_img = cv2.imread(str(Path(__file__).parent.parent / 'models/efficientnet/car.jpg'))
 
-class TestYOLO(unittest.TestCase):
+class TestYOLO(TrackedTestCase):
   @classmethod
   def setUpClass(cls):
     cls.model = Darknet(fetch("https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/yolov3.cfg").read_bytes())

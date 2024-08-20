@@ -1,4 +1,5 @@
 import ast
+from test.helpers import TrackedTestCase
 import pathlib
 import unittest
 
@@ -54,7 +55,7 @@ def _infer(model: EfficientNet, img, bs=1):
 chicken_img = Image.open(pathlib.Path(__file__).parent / 'efficientnet/Chicken.jpg')
 car_img = Image.open(pathlib.Path(__file__).parent / 'efficientnet/car.jpg')
 
-class TestEfficientNet(unittest.TestCase):
+class TestEfficientNet(TrackedTestCase):
   @classmethod
   def setUpClass(cls):
     cls.model = EfficientNet(number=getenv("NUM"))
@@ -76,7 +77,7 @@ class TestEfficientNet(unittest.TestCase):
     label = _infer(self.model, car_img)
     self.assertEqual(label, "sports car, sport car")
 
-class TestViT(unittest.TestCase):
+class TestViT(TrackedTestCase):
   @classmethod
   def setUpClass(cls):
     cls.model = ViT()
@@ -94,7 +95,7 @@ class TestViT(unittest.TestCase):
     label = _infer(self.model, car_img)
     self.assertEqual(label, "racer, race car, racing car")
 
-class TestResNet(unittest.TestCase):
+class TestResNet(TrackedTestCase):
   @classmethod
   def setUpClass(cls):
     cls.model = ResNet50()

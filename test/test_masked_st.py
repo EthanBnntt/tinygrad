@@ -1,7 +1,8 @@
 import unittest
+from test.helpers import TrackedTestCase
 from tinygrad.tensor import Tensor
 
-class TestMaskedShapeTracker(unittest.TestCase):
+class TestMaskedShapeTracker(TrackedTestCase):
   def test_mul_masked(self):
     a = Tensor([1,1,1,1,1])
     b = Tensor([1,1]).pad(((0,3),))

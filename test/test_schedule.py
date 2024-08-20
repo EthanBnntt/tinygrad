@@ -1,4 +1,5 @@
 # this will be the new test_ops for the next level
+from test.helpers import TrackedTestCase
 # schedule confirms the right things are capable of fusing
 # NOTE: this has overlap with external_test_opt.py
 
@@ -40,7 +41,7 @@ def check_schedule(t:Union[Tensor, List[Tensor], LazyBuffer], allowed:int, to_pr
     l.linearize()
   return sched
 
-class TestSchedule(unittest.TestCase):
+class TestSchedule(TrackedTestCase):
   def test_basic_binop_fusion(self):
     a = Tensor.empty(10)
     b = Tensor.empty(10)
@@ -1287,7 +1288,7 @@ class TestSchedule(unittest.TestCase):
     out = x.argmax(1)
     run_schedule(check_schedule(out, 3)) # TODO: push a reduceop through a reshape
 
-class TestConvBW(unittest.TestCase):
+class TestConvBW(TrackedTestCase):
   def check_schedule(self, xt, cnt:int, flops=None):
     with Context(FUSE_CONV_BW=getenv("FUSE_CONV_BW", 1), NOOPT=flops is not None):
       s = create_schedule(flatten([r.lazydata.lbs for r in xt]))
@@ -1357,7 +1358,7 @@ class TestConvBW(unittest.TestCase):
       c4(c3(c2(c1(img).relu()).relu()).relu()).relu().sum().backward()
       self.check_schedule(opt.schedule_step(), 19)
 
-class TestIndexing(unittest.TestCase):
+class TestIndexing(TrackedTestCase):
   def check_schedule(self, xt:Union[Tensor,List[Tensor]], cnt:int):
     with Context(FUSE_ARANGE=getenv("FUSE_ARANGE", 1)):
       lst = [xt] if isinstance(xt, Tensor) else xt

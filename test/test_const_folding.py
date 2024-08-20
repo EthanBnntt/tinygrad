@@ -1,4 +1,5 @@
 import unittest, math
+from test.helpers import TrackedTestCase
 from tinygrad import Tensor, Device, dtypes
 from tinygrad.ops import UOps
 from tinygrad.engine.schedule import create_schedule
@@ -12,7 +13,7 @@ def _check_ast_count(desired_count:int, t:Tensor):
   asts = [s for s in schedule if s.ast.op is UOps.SINK]
   assert len(asts) == desired_count
 
-class TestUnaryOpsConstFolding(unittest.TestCase):
+class TestUnaryOpsConstFolding(TrackedTestCase):
   def test_all_consts_ops(self):
     _check_ast_count(0, Tensor.ones(4).exp())
     _check_ast_count(0, Tensor.ones(4).sqrt())
@@ -34,7 +35,7 @@ class TestUnaryOpsConstFolding(unittest.TestCase):
     x = x.clip(0, 1).realize()
     _check_ast_count(1, x.neg())
 
-class TestBinaryOpsConstFolding(unittest.TestCase):
+class TestBinaryOpsConstFolding(TrackedTestCase):
   def test_add_literal_zero(self):
     _check_ast_count(0, Tensor([1.0, 2, 3, 4]) + 0)
   def test_add_tensor_zero(self):
@@ -94,7 +95,7 @@ class TestBinaryOpsConstFolding(unittest.TestCase):
     _check_ast_count(0, Tensor.ones(4) ** Tensor([1.0, 2, 3, 4]))
 
 # folds advance indexing into basic indexing
-class TestIndexingConstFolding(unittest.TestCase):
+class TestIndexingConstFolding(TrackedTestCase):
   def test_scalar_index(self):
     t = Tensor.arange(16).float().reshape(1,1,4,4).realize()
     _check_ast_count(0, t[:,:,Tensor(1),:])
@@ -109,7 +110,7 @@ class TestIndexingConstFolding(unittest.TestCase):
     _check_ast_count(0, t[:,:,Tensor.ones(1,2)+2,:])
     _check_ast_count(0, t[:,:,Tensor.ones(1,1),Tensor.zeros(2,1,2)])
 
-class TestMovedConstFolding(unittest.TestCase):
+class TestMovedConstFolding(TrackedTestCase):
   def test_add_shrunk_zero(self):
     _check_ast_count(0, Tensor([1.0, 2, 3, 4]) + Tensor.zeros(6).shrink(((1, 5),)))
 
@@ -133,7 +134,7 @@ class TestMovedConstFolding(unittest.TestCase):
     _check_ast_count(1, Tensor.ones(4).pad(((1, 1),)).cast(dtypes.int64))
     np.testing.assert_equal(Tensor.ones(4).pad(((1, 1),)).cast(dtypes.int64).numpy(), [0, 1, 1, 1, 1, 0])
 
-class TestReduceOpsConstFolding(unittest.TestCase):
+class TestReduceOpsConstFolding(TrackedTestCase):
   def test_const_sum(self):
     _check_ast_count(0, Tensor.ones(4, 5, 6).sum())
     np.testing.assert_equal(Tensor.ones(4, 5, 6).sum().numpy(), 4 * 5 * 6)
@@ -164,7 +165,7 @@ class TestReduceOpsConstFolding(unittest.TestCase):
         assert t.sum().dtype == t.contiguous().sum().dtype
 
 @unittest.skipIf(CI and Device.DEFAULT in {"GPU", "CUDA", "METAL"}, "no GPU CI")
-class TestMultiConstFolding(unittest.TestCase):
+class TestMultiConstFolding(TrackedTestCase):
   def test_multi_const_folding_literal(self):
     ds = tuple(f"{Device.DEFAULT}:{i}" for i in range(4))
     t = Tensor.arange(16).float().realize().to(ds)
@@ -219,7 +220,7 @@ class TestMultiConstFolding(unittest.TestCase):
     _check_ast_count(0, t ** one)
     _check_ast_count(0, one ** t)
 
-class TestTautologicalCompare(unittest.TestCase):
+class TestTautologicalCompare(TrackedTestCase):
   # without const folding, these would have triggered -Wtautological-compare in clang
   def test_lt_false(self):
     # bool < False is always false

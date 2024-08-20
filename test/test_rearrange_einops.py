@@ -1,4 +1,5 @@
 # modified from
+from test.helpers import TrackedTestCase
 # https://github.com/arogozhnikov/einops/blob/master/tests/test_examples.py
 # https://github.com/arogozhnikov/einops/blob/master/tests/test_ops.py
 # https://github.com/arogozhnikov/einops/blob/master/tests/test_parsing.py
@@ -8,7 +9,7 @@ import unittest
 from tinygrad import Tensor
 
 
-class test_rearrange_examples(unittest.TestCase):
+class test_rearrange_examples(TrackedTestCase):
   def test1(self):
     # transpose
     x = Tensor(np.arange(10 * 20 * 30 * 40).reshape([10, 20, 30, 40]))
@@ -108,7 +109,7 @@ class test_rearrange_examples(unittest.TestCase):
     assert np.allclose(y1.numpy(), y3.numpy())
 
 
-class test_rearrange_ops(unittest.TestCase):
+class test_rearrange_ops(TrackedTestCase):
   def test_rearrange_errors(self):
     x = Tensor.zeros([1, 1, 1, 1, 1])
     x.rearrange("a b c d ... ->  a b c ... d")
@@ -240,7 +241,7 @@ class test_rearrange_ops(unittest.TestCase):
 def check_expression_helper(expression: str):
   Tensor.ones((1, 2, 3, 4, 5, 6, 7))
 
-class test_rearrange_parsing(unittest.TestCase):
+class test_rearrange_parsing(TrackedTestCase):
   def test_elementary_axis_name(self):
     for name in [
       "a",
