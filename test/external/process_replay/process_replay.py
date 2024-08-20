@@ -51,6 +51,7 @@ def diff_kernel(offset:int) -> bool:
     except AssertionError:
       changed += 1
       logging.info("PROCESS REPLAY DETECTED CHANGE")
+      if (test_case:=ctx.get("ACTIVE_TEST")): print(test_case)
       logging.info(ast)
       logging.info(applied_opts)
       diff = list(difflib.unified_diff(good_src.splitlines(), compare_src.splitlines()))

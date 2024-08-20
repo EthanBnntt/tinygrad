@@ -1,5 +1,6 @@
 import sys, unittest
-from typing import Optional, Set, Tuple
+from unittest.result import TestResult
+from typing import Any, Optional, Set, Tuple, cast
 import numpy as np
 from tinygrad import Tensor, Device, dtypes
 from tinygrad.ops import UOp
@@ -7,7 +8,7 @@ from tinygrad.tensor import _to_np_dtype
 from tinygrad.engine.realize import Runner
 from tinygrad.dtype import DType
 from tinygrad.nn.state import get_parameters
-from tinygrad.helpers import Context, CI, OSX, getenv
+from tinygrad.helpers import Context, CI, OSX, ContextVar, getenv
 
 def derandomize_model(model):
   with Context(GRAPH=0):
@@ -70,3 +71,12 @@ class TestUOps(unittest.TestCase):
       print(f"{uop1=}")
       print(f"{uop2=}")
       raise e
+
+ACTIVE_TEST = ContextVar("ACTIVE_TEST", "")
+
+class TrackedTestCase(unittest.TestCase):
+  """Track test case names for process replay debugging"""
+  def run(self, result:Optional[TestResult]=None) -> Optional[TestResult]:
+    # TODO: ContextVar should handle str too
+    ACTIVE_TEST.value = cast(Any, str(self.id))
+    super().run(result)

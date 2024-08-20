@@ -2,6 +2,7 @@ import time, math, unittest
 import numpy as np
 from typing import List, Callable
 import torch
+from test.helpers import TrackedTestCase
 from tinygrad.helpers import getenv, IMAGE, DEBUG, CI
 from tinygrad import Tensor, Device, dtypes
 from tinygrad.tensor import _to_np_dtype
@@ -74,7 +75,7 @@ def prepare_test_op(low, high, shps, vals, forward_only=False):
   tst = [Tensor(x.detach().numpy(), requires_grad=(not forward_only and not FORWARD_ONLY)) for x in ts]
   return ts, tst
 
-class TestOps(unittest.TestCase):
+class TestOps(TrackedTestCase):
 
   def helper_test_exception(self, shps, torch_fxn, tinygrad_fxn, expected, exact=False, vals=None, low=-1.5, high=1.5):
     if getenv("MOCKGPU") and Device.DEFAULT == "NV": self.skipTest('helper_test_exception fails in CI CUDA')
