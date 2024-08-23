@@ -11,7 +11,6 @@ from tinygrad.dtype import ConstType, ImageDType, PtrDType, dtypes
 from tinygrad.lazy import LazyBuffer
 from tinygrad.shape.shapetracker import ShapeTracker
 from tinygrad.device import Buffer
-from tinygrad.shape.view import View, strides_for_shape
 
 # creation can recurse a lot
 sys.setrecursionlimit(10000)
@@ -19,7 +18,7 @@ sys.setrecursionlimit(10000)
 # optionally log the ops to disk
 logops = open(getenv("LOGOPS", ""), "a") if getenv("LOGOPS", "") else None
 # use graph rewrite for reduceop fusion
-AST_REWRITE = getenv("AST_REWRITE", 0)
+AST_REWRITE = getenv("AST_REWRITE", 1)
 
 # *** ScheduleItem return type ***
 
@@ -52,7 +51,6 @@ class LBScheduleItem:
 
 def _recursive_uop(buf:LazyBuffer, st:ShapeTracker, outputs:Tuple[LazyBuffer, ...], var_vals:Dict[Variable, int], inputs:Dict[LazyBuffer, int],
                       realizes:Dict[LazyBuffer, None], assign_targets:Dict[LazyBuffer, LazyBuffer],
-                      reduce_info:Dict[Tuple[LazyBuffer, ShapeTracker], Tuple[ShapeTracker, Tuple[int, ...]]],
                       cache:Dict[Tuple[LazyBuffer, ShapeTracker], UOp]) -> UOp:
   """recursively create a UOp"""
   if buf is not buf.base: st, buf = buf.st+st, buf.base
@@ -83,68 +81,18 @@ def _recursive_uop(buf:LazyBuffer, st:ShapeTracker, outputs:Tuple[LazyBuffer, ..
 
   # reduce ops change ShapeTracker
   if buf.op in ReduceOps:
-    rinfo: Optional[Tuple[ShapeTracker, Tuple[int, ...]]] = (ShapeTracker.from_shape(buf.srcs[0].shape), buf.arg) \
-        if AST_REWRITE else reduce_info.get((buf, st))
-    rsrc = _recursive_uop(buf.srcs[0], st:=(rinfo[0] if rinfo else st), outputs, var_vals, inputs, realizes, assign_targets, reduce_info, cache)
-    # if we are merging the reduce, skip it
-    if rinfo is None:
-      assert rsrc.op is UOps.REDUCE_AXIS and rsrc.arg[0] is buf.op, f"can't merge reduceop {buf.op} with {rsrc}\n{st}"
-      return rsrc
+    rinfo: Tuple[ShapeTracker, Tuple[int, ...]] = (ShapeTracker.from_shape(buf.srcs[0].shape), buf.arg)
+    rsrc = _recursive_uop(buf.srcs[0], st:=rinfo[0], outputs, var_vals, inputs, realizes, assign_targets, cache)
     return cache.setdefault((buf, st), UOp(UOps.REDUCE_AXIS, dtype, (rsrc,), (buf.op, rinfo[1])))
 
   # elementwise ops pass shapetracker
-  in_uops = tuple(_recursive_uop(x, st, outputs, var_vals, inputs, realizes, assign_targets, reduce_info, cache) for x in buf.srcs)
+  in_uops = tuple(_recursive_uop(x, st, outputs, var_vals, inputs, realizes, assign_targets, cache) for x in buf.srcs)
   if buf.op in {MetaOps.CONTIGUOUS, MetaOps.ASSIGN}:
     assert buf in outputs, f"{buf.op} must be writable"
     return in_uops[0]
   if buf.op is UnaryOps.CAST: return cache.setdefault((buf, st), UOp(UOps.CAST, dtype, in_uops))
   if buf.op is UnaryOps.BITCAST: return cache.setdefault((buf, st), UOp(UOps.BITCAST, dtype, in_uops))
   return cache.setdefault((buf, st), UOp(UOps.ALU, dtype, in_uops, buf.op))
-
-def _permute_reduce(input_st:ShapeTracker, axis:Tuple[int, ...]) -> Tuple[ShapeTracker, Tuple[sint, ...]]:
-  permute_axis = tuple(i for i in range(len(input_st.shape)) if i not in axis) + axis
-  tmp = input_st.permute(permute_axis)
-  return tmp, tmp.shape[-len(axis):]
-
-def _recurse_reduceops(buf:LazyBuffer, st:ShapeTracker, realizes:Dict[LazyBuffer, None], outs:List[LazyBuffer],
-                       reduce_info:Dict[Tuple[LazyBuffer, ShapeTracker], Tuple[ShapeTracker, Tuple[int, ...]]],
-                       cache:Dict[Tuple[LazyBuffer, ShapeTracker], Optional[Tuple[LazyBuffer, ShapeTracker]]]) -> \
-                         Optional[Tuple[LazyBuffer, ShapeTracker]]:
-  if (buf, st) in cache: return cache[(buf, st)]
-  if buf.base.realized is not None or (buf.base in realizes and buf.base not in outs): return None
-  if buf is not buf.base: st, buf = buf.st+st, buf.base
-  input_st = ShapeTracker.from_shape(buf.srcs[0].shape) if buf.op in ReduceOps else st
-  reduce_srcs = [r for x in buf.srcs if (r:=_recurse_reduceops(x, input_st, realizes, outs, reduce_info, cache)) is not None]
-  top_reduce = reduce_srcs[-1] if len(reduce_srcs) != 0 else None
-  if buf.op in ReduceOps:
-    axis = buf.arg
-    if not st.contiguous:
-      # push the movementop to the input
-      tmp, rshape = _permute_reduce(input_st, axis)
-      prshape = prod(rshape)
-      strides = strides_for_shape(rshape)
-      nv: List[View] = []
-      for v in st.views:
-        nv.append(View.create(v.shape+rshape, tuple(x*prshape for x in v.strides)+strides,
-                              v.offset*prshape, v.mask+tuple((0,s) for s in rshape) if v.mask is not None else None))
-      input_st = tmp + ShapeTracker(tuple(nv))
-      # update the axis
-      _, new_rshape = _permute_reduce(input_st, axis)
-      axis = tuple(range(len(input_st.shape)-len(new_rshape), len(input_st.shape)))
-    elif top_reduce is not None:
-      top_reduce_input_st, top_reduce_axes = reduce_info[top_reduce]
-      if buf.srcs[0] is not buf.srcs[0].base and buf.srcs[0].base is top_reduce[0] and buf.op is top_reduce[0].op:
-        # merge this reduce with its parent
-        new_st = top_reduce[1]+st
-        top_reduce = (top_reduce[0], new_st.reshape(top_reduce_input_st.reduce(new_axis:=axis+top_reduce_axes)))
-        reduce_info[top_reduce] = (top_reduce_input_st, new_axis)
-        return None
-      # reshape this reduceop based on the top reduce
-      input_st = input_st.reshape(tuple(1 if i in top_reduce_axes else s for i,s in enumerate(top_reduce_input_st.shape)))
-    st = st.reshape(input_st.reduce(axis))
-    reduce_info[(buf, st)] = (input_st, axis)
-    return (buf, st)
-  return cache.setdefault((buf, st), top_reduce)
 
 # ***** helpers for doing movementops on uops *****
 
@@ -187,20 +135,6 @@ def _lower_lazybuffer(outs:List[LazyBuffer], realizes:Dict[LazyBuffer, None]) ->
     return LBScheduleItem(UOp(UOps.SINK, None, (wr,)), outs, [x.base for x in out.srcs])
   if out.op in {MetaOps.CUSTOM, MetaOps.COPY, MetaOps.EMPTY, MetaOps.VIEW}:
     return LBScheduleItem(UOp(UOps.EXT, out.dtype, (), (out.op, out.arg)), outs, [x.base for x in out.srcs])
-  reduce_info: Dict[Tuple[LazyBuffer, ShapeTracker], Tuple[ShapeTracker, Tuple[int, ...]]] = {}
-  if not AST_REWRITE:
-    # push through all movementops between reduceops
-    # NOTE: AST_REWRITE does this with graph rewrite
-    seen_ops: Dict[Tuple[LazyBuffer, ShapeTracker], Optional[Tuple[LazyBuffer, ShapeTracker]]] = {}
-    for out in outs: _recurse_reduceops(out, out.st, realizes, outs, reduce_info, seen_ops)
-    # pad all reduceops to the max of each dimension
-    shape_dims = [sorted(dedup(dims)) for dims in zip(*[input_st.shape for input_st,_ in reduce_info.values()])]
-    for i,dims in enumerate(shape_dims):
-      if len(dims) == 1 or (len(dims) == 2 and dims[0] == 1): continue
-      for (r,view),(input_st,axis) in reduce_info.items():
-        if (dim:=input_st.shape[i]) > 1 and dim != max(dims):
-          input_st = input_st.pad(((0, 0),)*i+((0, max(dims)-dim),))
-          reduce_info[(r, view)] = (input_st, axis)
   # create the stores
   var_vals = merge_dicts([out.st.var_vals.copy() for out in outs])
   assign_targets = {x.srcs[1]:x for x in outs if x.op is MetaOps.ASSIGN}
@@ -208,12 +142,11 @@ def _lower_lazybuffer(outs:List[LazyBuffer], realizes:Dict[LazyBuffer, None]) ->
   ast: List[UOp] = []
   inputs: Dict[LazyBuffer, int] = {}
   for i, out in enumerate(outs):
-    output_shape = ShapeTracker.reduce(*deque(reduce_info.values(), 1).pop()) if reduce_info and not getenv("AST_REWRITE") else out.shape
-    output_st = ShapeTracker.from_shape(output_shape)
-    src = _recursive_uop(out, output_st, tuple(outs), var_vals, inputs, realizes, assign_targets, reduce_info, cache=cache)
+    output_st = ShapeTracker.from_shape(out.shape)
+    src = _recursive_uop(out, output_st, tuple(outs), var_vals, inputs, realizes, assign_targets, cache=cache)
     if out.op is MetaOps.ASSIGN and out.arg:
       assert out.arg[0].shape == out.shape, f"ASSIGN must not override output shape {out.arg[0].shape} != {out.shape}"
-      output_st = out.arg[0].reshape(output_shape)
+      output_st = out.arg[0]
     output_st, vv = output_st.simplify().unbind()
     if vv: var_vals.update(vv)
     ubuf = UOp(UOps.DEFINE_GLOBAL, out.dtype if isinstance(out.dtype, ImageDType) else PtrDType(out.dtype), (), i)
