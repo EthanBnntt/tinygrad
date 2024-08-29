@@ -82,17 +82,16 @@ def _recursive_uop(buf:LazyBuffer, st:ShapeTracker, outputs:Tuple[LazyBuffer, ..
 
   # reduce ops change ShapeTracker
   if buf.op in ReduceOps:
-    swizzle_arg = st if not st.contiguous and AST_REWRITE else None
     rinfo: Optional[Tuple[ShapeTracker, Tuple[int, ...]]] = (ShapeTracker.from_shape(buf.srcs[0].shape), buf.arg) \
         if AST_REWRITE else reduce_info.get((buf, st))
-    rsrc = _recursive_uop(buf.srcs[0], st:=(rinfo[0] if rinfo else st), outputs, var_vals, inputs, realizes, assign_targets, reduce_info, cache)
+    rsrc = _recursive_uop(buf.srcs[0], rinfo[0] if rinfo else st, outputs, var_vals, inputs, realizes, assign_targets, reduce_info, cache)
     alu_op = REDUCE_ALU[cast(ReduceOps, buf.op)]
     # if we are merging the reduce, skip it
     if rinfo is None:
       assert rsrc.op is UOps.REDUCE_AXIS and rsrc.arg[0] is alu_op, f"can't merge reduceop {buf.op} with {rsrc}\n{st}"
       return rsrc
     ret = UOp(UOps.REDUCE_AXIS, dtype, (rsrc,), (alu_op, rinfo[1]))
-    if swizzle_arg is not None: ret = UOp(UOps.SWIZZLE, dtype, (ret,), swizzle_arg)
+    if AST_REWRITE: ret = UOp(UOps.SWIZZLE, dtype, (ret,), st)
     return cache.setdefault((buf, st), ret)
 
   # elementwise ops pass shapetracker
